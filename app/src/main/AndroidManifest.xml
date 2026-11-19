@@ -28,6 +28,9 @@
             android:name=".LiveRoomActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".GreedyGameActivity"
+            android:exported="false" />
+
     </application>
 </manifest>
-<activity android:name=".GreedyGameActivity" android:exported="false" />
