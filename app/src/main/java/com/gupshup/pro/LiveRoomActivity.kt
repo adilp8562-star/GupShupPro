@@ -1,14 +1,8 @@
 package com.gupshup.pro
 
-import android.content.SharedPreferences
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
+import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
-import android.view.ViewGroup
 import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -23,24 +17,28 @@ import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import com.zegocloud.uikit.prebuilt.liveaudioroom.ZegoUIKitPrebuiltLiveAudioRoomConfig
 import com.zegocloud.uikit.prebuilt.liveaudioroom.ZegoUIKitPrebuiltLiveAudioRoomFragment
+import com.zegocloud.uikit.prebuilt.liveaudioroom.core.ZegoLiveAudioRoomLayoutAlignment
+import com.zegocloud.uikit.prebuilt.liveaudioroom.core.ZegoLiveAudioRoomLayoutConfig
+import com.zegocloud.uikit.prebuilt.liveaudioroom.core.ZegoLiveAudioRoomLayoutRowConfig
 import kotlin.random.Random
 
 class LiveRoomActivity : AppCompatActivity() {
 
-    private lateinit var prefs: SharedPreferences
     private lateinit var dbRef: DatabaseReference
     private lateinit var roomRef: DatabaseReference
-    private lateinit var userRef: DatabaseReference
+    private lateinit var userCoinsRef: DatabaseReference
 
+    private lateinit var tvRoomHeader: TextView
     private lateinit var tvRoomCoins: TextView
     private lateinit var tvRocketStatus: TextView
     private lateinit var rocketProgress: ProgressBar
     private lateinit var btnTreasureBox: Button
 
-    private var userName: String = "Adil"
-    private var roomID: String = "1001"
+    private var userName: String = "Royal Host"
+    private var shortUid: String = "100001"
+    private var roomID: String = "8888"
     private var isHost: Boolean = false
-    private var myCoins: Int = 5000
+    private var myCoins: Int = 50000
     private var currentRocketCoins: Int = 0
     private val rocketTarget: Int = 10000
     private var treasureUnlocked: Boolean = false
@@ -51,237 +49,129 @@ class LiveRoomActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_live_room)
 
-        val appID: Long = 1671813519L
-        val appSign = "040b2f45d06222c7e4497aa810311b370483c7b1d0440d503ec2e04401692938"
+        val appID: Long = 1471013519L
+        val appSign = "940b2f45d06222c7e4497aa010311b3704833c7b1d0440d503ec2e04401652938"
 
-        val userID = "user_${Random.nextInt(10000, 99999)}"
-        userName = intent.getStringExtra("USER_NAME") ?: "Adil"
-        roomID = intent.getStringExtra("ROOM_ID") ?: "1001"
+        val prefs = getSharedPreferences("GupShupPrefs", MODE_PRIVATE)
+        userName = intent.getStringExtra("USER_NAME") ?: prefs.getString("user_name", "Royal Host") ?: "Royal Host"
+        shortUid = intent.getStringExtra("USER_UID") ?: prefs.getString("user_uid", "100001") ?: "100001"
+        roomID = intent.getStringExtra("ROOM_ID") ?: "8888"
         isHost = intent.getBooleanExtra("IS_HOST", false)
+        myCoins = prefs.getInt("user_coins", 50000)
 
-        prefs = getSharedPreferences("GupShupPrefs", MODE_PRIVATE)
-        myCoins = prefs.getInt("user_coins", 5000)
+        tvRoomHeader = findViewById(R.id.tvRoomHeader)
+        tvRoomCoins = findViewById(R.id.tvRoomCoins)
+        tvRocketStatus = findViewById(R.id.tvRocketStatus)
+        rocketProgress = findViewById(R.id.rocketProgress)
+        btnTreasureBox = findViewById(R.id.btnTreasureBox)
+
+        tvRoomHeader.text = "🎙️ Room #$roomID • 10 Seats"
+        tvRoomCoins.text = "🪙 $myCoins"
 
         dbRef = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
-        val userKey = userName.replace(Regex("[^a-zA-Z0-9_]"), "_")
-        userRef = dbRef.child("users").child(userKey).child("coins")
+        userCoinsRef = dbRef.child("users").child(shortUid).child("coins")
         roomRef = dbRef.child("rooms").child(roomID)
 
-        // Start ZEGOCLOUD Audio Room
+        // Real-time Coins Sync
+        userCoinsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val liveCoins = snapshot.getValue(Int::class.java)
+                if (liveCoins != null) {
+                    myCoins = liveCoins
+                    tvRoomCoins.text = "🪙 $myCoins"
+                    prefs.edit().putInt("user_coins", myCoins).apply()
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        // Real-time Rocket Meter Sync
+        roomRef.child("rocketCoins").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                currentRocketCoins = snapshot.getValue(Int::class.java) ?: 0
+                val progress = currentRocketCoins.coerceAtMost(rocketTarget)
+                rocketProgress.max = rocketTarget
+                rocketProgress.progress = progress
+
+                if (currentRocketCoins >= rocketTarget) {
+                    treasureUnlocked = true
+                    tvRocketStatus.text = "🚀 ROCKET LAUNCHED! Treasure Ready!"
+                    btnTreasureBox.text = "🎁 CLAIM +3,000"
+                    btnTreasureBox.isEnabled = true
+                } else {
+                    treasureUnlocked = false
+                    tvRocketStatus.text = "🚀 Rocket Fuel: $currentRocketCoins / $rocketTarget"
+                    btnTreasureBox.text = "🔒 Locked"
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        // Send Rocket Fuel Gift (1,000 Coins)
+        findViewById<Button>(R.id.btnSendRocketGift).setOnClickListener {
+            if (myCoins < 1000) {
+                Toast.makeText(this, "कम से कम 1,000 Coins चाहिए!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val newBalance = myCoins - 1000
+            userCoinsRef.setValue(newBalance)
+
+            roomRef.child("rocketCoins").runTransaction(object : Transaction.Handler {
+                override fun doTransaction(currentData: MutableData): Transaction.Result {
+                    val current = currentData.getValue(Int::class.java) ?: 0
+                    currentData.value = current + 1000
+                    return Transaction.success(currentData)
+                }
+                override fun onComplete(error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?) {
+                    Toast.makeText(this@LiveRoomActivity, "🚀 +1,000 Rocket Fuel भेजा गया!", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+
+        // Claim Rocket Treasure Box
+        btnTreasureBox.setOnClickListener {
+            if (!treasureUnlocked) {
+                Toast.makeText(this, "पहले Rocket को 10,000 तक पूरा भरें!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            roomRef.child("rocketCoins").setValue(0)
+            val bonusCoins = myCoins + 3000
+            userCoinsRef.setValue(bonusCoins)
+            AlertDialog.Builder(this)
+                .setTitle("🚀 ROCKET BLAST JACKPOT!")
+                .setMessage("मुबारक हो $userName! Rocket Launch से आपको +3,000 Gold Coins का बोनस मिला!")
+                .setPositiveButton("Awesome!", null)
+                .show()
+        }
+
+        // Open Mini Greedy inside Room
+        findViewById<Button>(R.id.btnRoomGreedy).setOnClickListener {
+            startActivity(Intent(this, GreedyGameActivity::class.java))
+        }
+
+        // Setup 10-Seat ZEGOCLOUD HD Voice Room (2 Rows x 5 Seats = 10 Seats)
+        val zegoUserId = "${shortUid}_${Random.nextInt(100, 999)}"
         val config = if (isHost) {
             ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
         } else {
             ZegoUIKitPrebuiltLiveAudioRoomConfig.audience()
         }
 
-        val fragment = ZegoUIKitPrebuiltLiveAudioRoomFragment.newInstance(
-            appID,
-            appSign,
-            userID,
-            userName,
-            roomID,
-            config
-        )
+        val layoutConfig = ZegoLiveAudioRoomLayoutConfig()
+        val row1 = ZegoLiveAudioRoomLayoutRowConfig(5, 12, ZegoLiveAudioRoomLayoutAlignment.SPACE_AROUND)
+        val row2 = ZegoLiveAudioRoomLayoutRowConfig(5, 12, ZegoLiveAudioRoomLayoutAlignment.SPACE_AROUND)
+        layoutConfig.rowConfigs = mutableListOf(row1, row2)
+        config.layoutConfig = layoutConfig
 
+        if (isHost) {
+            config.takeSeatIndexWhenJoining = 0
+        }
+
+        val fragment = ZegoUIKitPrebuiltLiveAudioRoomFragment.newInstance(
+            appID, appSign, zegoUserId, userName, roomID, config
+        )
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commitNow()
-
-        // Attach Live Haza-style Rocket, Gift & Treasure Overlay
-        setupLiveHazaOverlay()
-        listenToUserCoins()
-        listenToLiveRoomState()
-    }
-
-    private fun setupLiveHazaOverlay() {
-        val rootView = findViewById<ViewGroup>(android.R.id.content)
-
-        val overlayBar = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(24, 14, 24, 14)
-            val bg = GradientDrawable().apply {
-                setColor(Color.parseColor("#CC1A103C"))
-                cornerRadius = 28f
-                setStroke(2, Color.parseColor("#FFD700"))
-            }
-            background = bg
-        }
-
-        val topRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        tvRoomCoins = TextView(this).apply {
-            text = "🪙 $myCoins"
-            setTextColor(Color.parseColor("#FFD700"))
-            textSize = 14f
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        }
-
-        val btnSendGift = Button(this).apply {
-            text = "🎁 Gift"
-            textSize = 12f
-            setTextColor(Color.BLACK)
-            setBackgroundColor(Color.parseColor("#FFD700"))
-            setPadding(20, 4, 20, 4)
-            setOnClickListener { showGiftDialog() }
-        }
-
-        btnTreasureBox = Button(this).apply {
-            text = "🔒 Box"
-            textSize = 12f
-            setTextColor(Color.WHITE)
-            setBackgroundColor(Color.parseColor("#6A1B9A"))
-            setPadding(20, 4, 20, 4)
-            val lp = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { leftMargin = 12 }
-            layoutParams = lp
-            setOnClickListener { claimTreasureBox() }
-        }
-
-        topRow.addView(tvRoomCoins)
-        topRow.addView(btnSendGift)
-        topRow.addView(btnTreasureBox)
-
-        tvRocketStatus = TextView(this).apply {
-            text = "🚀 Room $roomID Rocket: 0 / $rocketTarget"
-            setTextColor(Color.WHITE)
-            textSize = 12f
-            setPadding(0, 8, 0, 4)
-        }
-
-        rocketProgress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
-            max = rocketTarget
-            progress = 0
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                18
-            )
-        }
-
-        overlayBar.addView(topRow)
-        overlayBar.addView(tvRocketStatus)
-        overlayBar.addView(rocketProgress)
-
-        val params = FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-            gravity = Gravity.BOTTOM
-            setMargins(24, 0, 24, 150)
-        }
-
-        rootView.addView(overlayBar, params)
-    }
-
-    private fun listenToUserCoins() {
-        userRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val cloudCoins = snapshot.getValue(Int::class.java)
-                if (cloudCoins != null) {
-                    myCoins = cloudCoins
-                    prefs.edit().putInt("user_coins", myCoins).apply()
-                    tvRoomCoins.text = "🪙 $myCoins"
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        })
-    }
-
-    private fun listenToLiveRoomState() {
-        roomRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                currentRocketCoins = snapshot.child("rocketCoins").getValue(Int::class.java) ?: 0
-                treasureUnlocked = snapshot.child("treasureUnlocked").getValue(Boolean::class.java) ?: false
-
-                rocketProgress.progress = currentRocketCoins.coerceAtMost(rocketTarget)
-                tvRocketStatus.text = "🚀 Room $roomID Rocket: $currentRocketCoins / $rocketTarget"
-
-                if (treasureUnlocked || currentRocketCoins >= rocketTarget) {
-                    btnTreasureBox.text = "🎁 OPEN BOX!"
-                    btnTreasureBox.setBackgroundColor(Color.parseColor("#00C853"))
-                } else {
-                    btnTreasureBox.text = "🔒 Box"
-                    btnTreasureBox.setBackgroundColor(Color.parseColor("#6A1B9A"))
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        })
-    }
-
-    private fun showGiftDialog() {
-        val gifts = arrayOf(
-            "🌹 Rose (500 Coins)",
-            "🏎️ Sports Car (2000 Coins)",
-            "🚀 Mega Rocket (5000 Coins)"
-        )
-        val costs = arrayOf(500, 2000, 5000)
-
-        AlertDialog.Builder(this)
-            .setTitle("🎁 Send Live Gift (Rocket Boost)")
-            .setItems(gifts) { _, which ->
-                val cost = costs[which]
-                if (myCoins < cost) {
-                    Toast.makeText(this, "❌ पर्याप्त Coins नहीं हैं!", Toast.LENGTH_SHORT).show()
-                    return@setItems
-                }
-
-                myCoins -= cost
-                prefs.edit().putInt("user_coins", myCoins).apply()
-                tvRoomCoins.text = "🪙 $myCoins"
-                userRef.setValue(myCoins)
-
-                // Add gift coins to live room rocket
-                roomRef.child("rocketCoins").runTransaction(object : Transaction.Handler {
-                    override fun doTransaction(currentData: MutableData): Transaction.Result {
-                        val current = currentData.getValue(Int::class.java) ?: 0
-                        val updated = current + cost
-                        currentData.value = updated
-                        if (updated >= rocketTarget) {
-                            roomRef.child("treasureUnlocked").setValue(true)
-                        }
-                        return Transaction.success(currentData)
-                    }
-
-                    override fun onComplete(error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?) {
-                        Toast.makeText(
-                            this@LiveRoomActivity,
-                            "🚀 आपने ${gifts[which]} भेजा! Rocket आगे बढ़ा!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                })
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun claimTreasureBox() {
-        if (!treasureUnlocked && currentRocketCoins < rocketTarget) {
-            val remaining = rocketTarget - currentRocketCoins
-            Toast.makeText(
-                this,
-                "🔒 Treasure Box खोलने के लिए $remaining Coins के Gifts और भेजें!",
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-
-        val reward = 1000
-        myCoins += reward
-        prefs.edit().putInt("user_coins", myCoins).apply()
-        tvRoomCoins.text = "🪙 $myCoins"
-        userRef.setValue(myCoins)
-
-        // Reset Rocket for next round
-        roomRef.child("rocketCoins").setValue(0)
-        roomRef.child("treasureUnlocked").setValue(false)
-
-        Toast.makeText(this, "🎉 मुबारक हो! Treasure Box से +$reward Coins मिले!", Toast.LENGTH_LONG).show()
     }
 }
