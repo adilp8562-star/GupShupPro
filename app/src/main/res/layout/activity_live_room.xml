@@ -1,6 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_container"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#12101E" />
+    android:orientation="vertical"
+    android:background="#0D061A">
+
+    <!-- Top Room Header & Wallet -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#1D0F38"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvRoomHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🎙️ Room #8888 • 10 Seats"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvRoomCoins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🪙 50000"
+            android:textColor="#FFD700"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="#2E1859"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp" />
+    </LinearLayout>
+
+    <!-- Rocket Launch Meter & Mini Greedy Strip -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#261147"
+        android:padding="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvRocketStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🚀 Rocket Fuel: 0 / 10000"
+                android:textColor="#FDE047"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnSendRocketGift"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="🚀 Gift 1K"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:backgroundTint="#E11D48"
+                android:layout_marginEnd="6dp" />
+
+            <Button
+                android:id="@+id/btnTreasureBox"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="🔒 Locked"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:backgroundTint="#FBBF24"
+                android:layout_marginEnd="6dp" />
+
+            <Button
+                android:id="@+id/btnRoomGreedy"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="🎡 Greedy"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:backgroundTint="#7C3AED" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/rocketProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="6dp"
+            android:max="10000"
+            android:progress="0"
+            android:progressTint="#FFD700" />
+    </LinearLayout>
+
+    <!-- 10-Seat ZEGOCLOUD HD Voice Room Container -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
