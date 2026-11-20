@@ -11,19 +11,30 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlin.random.Random
 
 class GreedyGameActivity : AppCompatActivity() {
 
-    private var coins = 5500
+    private val FIREBASE_DB_URL = "https://gupshuppro-9ab9e-default-rtdb.firebaseio.com"
+    private lateinit var userCoinsRef: DatabaseReference
+
+    private var coins = 50000
     private var selectedChip = 100
     private var isBettingOpen = true
+    private var isSuperAdmin = false
+    private var shortUid = "100001"
+    private var nextWinnerIndex = 0
 
     private lateinit var boxes: List<Button>
     private val bets = IntArray(8) { 0 }
-    private val names = listOf("🍔", "🍅", "🍕", "🌽", "🍗", "🥕", "🌭", "👑")
+    private val names = listOf("🍅 Tomato", "🌽 Corn", "🥕 Carrot", "🥬 Cabbage", "🍗 Chicken", "🍤 Shrimp", "🐟 Fish", "🥩 Steak")
     private val multipliers = listOf(5, 10, 5, 15, 5, 25, 5, 45)
-    private val historyList = mutableListOf("🍔", "🍕", "🍅", "🍗", "👑", "🥕")
+    private val historyList = mutableListOf("🍅", "🍗", "🥩", "🍤", "🌽", "🐟", "🥕")
 
     private lateinit var tvCoins: TextView
     private lateinit var tvTimerStatus: TextView
@@ -38,7 +49,24 @@ class GreedyGameActivity : AppCompatActivity() {
         setContentView(R.layout.activity_greedy)
 
         val prefs = getSharedPreferences("GupShupPrefs", Context.MODE_PRIVATE)
-        coins = prefs.getInt("user_coins", 5500)
+        coins = prefs.getInt("user_coins", 50000)
+        shortUid = prefs.getString("user_uid", "100001") ?: "100001"
+        isSuperAdmin = prefs.getBoolean("is_super_admin", false)
+
+        val dbRef = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
+        userCoinsRef = dbRef.child("users").child(shortUid).child("coins")
+
+        userCoinsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val liveCoins = snapshot.getValue(Int::class.java)
+                if (liveCoins != null) {
+                    coins = liveCoins
+                    prefs.edit().putInt("user_coins", coins).apply()
+                    updateUI()
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
 
         tvCoins = findViewById(R.id.tvGreedyCoins)
         tvTimerStatus = findViewById(R.id.tvTimerStatus)
@@ -76,128 +104,135 @@ class GreedyGameActivity : AppCompatActivity() {
         val chip500 = findViewById<Button>(R.id.chip500)
         val chip1000 = findViewById<Button>(R.id.chip1000)
         val chip5000 = findViewById<Button>(R.id.chip5000)
-        val allChips = listOf(chip100, chip500, chip1000, chip5000)
-        val values = listOf(100, 500, 1000, 5000)
 
-        allChips.forEachIndexed { idx, btn ->
-            btn.setOnClickListener {
-                selectedChip = values[idx]
-                allChips.forEach {
-                    it.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#321B6B"))
-                    it.setTextColor(Color.WHITE)
+        val chips = listOf(chip100 to 100, chip500 to 500, chip1000 to 1000, chip5000 to 5000)
+        chips.forEach { (btn, value) ->
+            btn?.setOnClickListener {
+                selectedChip = value
+                chips.forEach { (b, _) ->
+                    b?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#2E1859"))
                 }
-                btn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF9800"))
-                btn.setTextColor(Color.BLACK)
+                btn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFD700"))
+                Toast.makeText(this, "Selected Bet: $value Coins", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun placeBet(index: Int) {
         if (!isBettingOpen) {
-            Toast.makeText(this, "⏳ व्हील घूम रहा है! अगले राउंड का इंतज़ार करें", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Wait for next round!", Toast.LENGTH_SHORT).show()
             return
         }
         if (coins < selectedChip) {
-            Toast.makeText(this, "❌ पर्याप्त कॉइन्स नहीं हैं!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Not enough coins!", Toast.LENGTH_SHORT).show()
             return
         }
         coins -= selectedChip
         bets[index] += selectedChip
-        saveCoins()
+        syncCoins()
         updateUI()
     }
 
     private fun startNewRound() {
         isBettingOpen = true
-        for (i in 0..7) bets[i] = 0
-        resetBoxColors()
-        updateUI()
+        for (i in 0..7) {
+            bets[i] = 0
+            boxes[i].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#2A1552"))
+        }
+
+        // Weighted Royal Wheel Selection (Pre-determined so Super Admin sees Secret Hint)
+        val roll = Random.nextInt(100)
+        nextWinnerIndex = when {
+            roll < 22 -> 0 // 5x
+            roll < 44 -> 2 // 5x
+            roll < 64 -> 4 // 5x
+            roll < 78 -> 6 // 5x
+            roll < 88 -> 1 // 10x
+            roll < 94 -> 3 // 15x
+            roll < 98 -> 5 // 25x
+            else -> 7      // 45x Jackpot
+        }
 
         roundTimer?.cancel()
-        roundTimer = object : CountDownTimer(30000, 1000) {
+        roundTimer = object : CountDownTimer(12000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                val sec = (millisUntilFinished / 1000) + 1
-                tvTimerStatus.text = "⏳ Betting Time: ${sec}s"
-                tvCenterDisplay.text = "${sec}s\nPLACE BET"
-                tvCenterDisplay.setBackgroundColor(Color.parseColor("#FF6F00"))
+                val sec = millisUntilFinished / 1000
+                tvTimerStatus.text = if (isSuperAdmin) {
+                    "⏳ ${sec}s • 👑 Secret Hint: ${names[nextWinnerIndex]} (${multipliers[nextWinnerIndex]}x)"
+                } else {
+                    "⏳ Place Your Bets: ${sec}s"
+                }
+                tvCenterDisplay.text = "🎡\nBETTING"
             }
 
             override fun onFinish() {
-                isBettingOpen = false
-                tvTimerStatus.text = "🎡 Spinning Wheel..."
-                tvCenterDisplay.text = "SPIN\n..."
-                tvCenterDisplay.setBackgroundColor(Color.parseColor("#D50000"))
                 spinWheel()
             }
         }.start()
     }
 
     private fun spinWheel() {
-        val weightedPool = listOf(0, 0, 0, 2, 2, 2, 4, 4, 4, 6, 6, 6, 1, 1, 3, 3, 5, 7)
-        val winnerIndex = weightedPool[Random.nextInt(weightedPool.size)]
-        val totalSteps = 24 + winnerIndex
+        isBettingOpen = false
+        tvTimerStatus.text = "🎰 Spinning Royal Wheel..."
 
-        var currentStep = 0
+        var step = 0
+        val totalSteps = 16 + nextWinnerIndex
         val spinRunnable = object : Runnable {
             override fun run() {
-                resetBoxColors()
-                val activeBox = currentStep % 8
-                boxes[activeBox].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFD700"))
-                boxes[activeBox].setTextColor(Color.BLACK)
+                val currentIdx = step % 8
+                for (i in 0..7) {
+                    boxes[i].backgroundTintList = ColorStateList.valueOf(
+                        if (i == currentIdx) Color.parseColor("#FFD700") else Color.parseColor("#2A1552")
+                    )
+                }
+                tvCenterDisplay.text = names[currentIdx]
 
-                if (currentStep < totalSteps) {
-                    currentStep++
-                    val delay = if (currentStep > totalSteps - 6) 220L else 90L
-                    handler.postDelayed(this, delay)
+                if (step < totalSteps) {
+                    step++
+                    handler.postDelayed(this, (70 + step * 8).toLong())
                 } else {
-                    finishRound(winnerIndex)
+                    announceWinner(nextWinnerIndex)
                 }
             }
         }
         handler.post(spinRunnable)
     }
 
-    private fun finishRound(winnerIndex: Int) {
-        val wonAmount = bets[winnerIndex] * multipliers[winnerIndex]
-        if (wonAmount > 0) {
-            coins += wonAmount
-            saveCoins()
-            tvTimerStatus.text = "🎉 जीते! ${names[winnerIndex]} (${multipliers[winnerIndex]}x) -> +$wonAmount Coins!"
-            tvCenterDisplay.text = "WIN!\n+$wonAmount"
-            tvCenterDisplay.setBackgroundColor(Color.parseColor("#00C853"))
+    private fun announceWinner(winIdx: Int) {
+        val winName = names[winIdx]
+        val mult = multipliers[winIdx]
+        val betOnWinner = bets[winIdx]
+        val winAmount = betOnWinner * mult
+
+        historyList.add(0, winName.substringBefore(" "))
+        if (historyList.size > 10) historyList.removeAt(historyList.size - 1)
+
+        if (winAmount > 0) {
+            coins += winAmount
+            syncCoins()
+            tvCenterDisplay.text = "🎉 WIN!\n+$winAmount"
+            Toast.makeText(this, "🎉 $winName (${mult}x) Won! +$winAmount Coins!", Toast.LENGTH_LONG).show()
         } else {
-            tvTimerStatus.text = "Result: ${names[winnerIndex]} (${multipliers[winnerIndex]}x) आया!"
-            tvCenterDisplay.text = "${names[winnerIndex]}\n${multipliers[winnerIndex]}x"
-            tvCenterDisplay.setBackgroundColor(Color.parseColor("#4A148C"))
+            tvCenterDisplay.text = "$winName\n${mult}x"
         }
 
-        historyList.add(0, names[winnerIndex])
-        if (historyList.size > 6) historyList.removeAt(historyList.size - 1)
         updateUI()
-
-        handler.postDelayed({
-            if (!isFinishing) startNewRound()
-        }, 4000)
+        handler.postDelayed({ startNewRound() }, 3500)
     }
 
-    private fun resetBoxColors() {
-        boxes.forEachIndexed { idx, btn ->
-            btn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#2B1659"))
-            btn.setTextColor(if (idx == 7) Color.parseColor("#FFD700") else Color.WHITE)
-        }
+    private fun syncCoins() {
+        getSharedPreferences("GupShupPrefs", Context.MODE_PRIVATE)
+            .edit().putInt("user_coins", coins).apply()
+        userCoinsRef.setValue(coins)
     }
 
     private fun updateUI() {
         tvCoins.text = "🪙 $coins"
-        boxes.forEachIndexed { idx, btn ->
-            btn.text = "${names[idx]} ${multipliers[idx]}x\nBet: ${bets[idx]}"
+        tvHistory.text = "History: ${historyList.joinToString(" ")}"
+        for (i in 0..7) {
+            val baseLabel = "${names[i]}\n${multipliers[i]}x"
+            boxes[i].text = if (bets[i] > 0) "$baseLabel\n[Bet: ${bets[i]}]" else baseLabel
         }
-        tvHistory.text = "Result: " + historyList.joinToString("  ")
-    }
-
-    private fun saveCoins() {
-        val prefs = getSharedPreferences("GupShupPrefs", Context.MODE_PRIVATE)
-        prefs.edit().putInt("user_coins", coins).apply()
     }
 
     override fun onDestroy() {
