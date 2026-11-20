@@ -1,5 +1,6 @@
 package com.gupshup.pro
 
+import android.accounts.AccountManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -7,10 +8,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -19,27 +16,30 @@ import kotlin.random.Random
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var tvLoginStatus: TextView
 
     private val OWNER_EMAIL = "adilp8562@gmail.com"
     private val FIREBASE_DB_URL = "https://gupshuppro-9ab9e-default-rtdb.firebaseio.com"
 
-    private val signInLauncher = registerForActivityResult(
+    private val accountPickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            val email = account.email ?: ""
-            val name = account.displayName ?: "Royal User"
-            val googleKey = (account.id ?: email).replace(Regex("[^a-zA-Z0-9]"), "_")
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            val email = result.data?.getStringExtra(AccountManager.KEY_ACCOUNT_NAME) ?: ""
+            if (email.isNotEmpty()) {
+                val rawName = email.substringBefore("@").replace(".", " ").replace("_", " ")
+                val displayName = rawName.split(" ").joinToString(" ") { word ->
+                    word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                }.ifEmpty { "Royal User" }
 
-            tvLoginStatus.text = "✅ Welcome $name! Setting up Royal ID..."
-            setupUserAndGoHome(googleKey, name, email)
-        } catch (e: ApiException) {
-            tvLoginStatus.text = "Login Cancelled (${e.statusCode}) - कृपया दोबारा दबाएं"
-            Toast.makeText(this, "Google Sign-In Error: ${e.statusCode}", Toast.LENGTH_LONG).show()
+                val googleKey = email.replace(Regex("[^a-zA-Z0-9]"), "_")
+                tvLoginStatus.text = "✅ Welcome $displayName! Setting up Royal ID..."
+                setupUserAndGoHome(googleKey, displayName, email)
+            } else {
+                tvLoginStatus.text = "कृपया एक Google Account चुनें"
+            }
+        } else {
+            tvLoginStatus.text = "Login Cancelled - कृपया दोबारा दबाएं"
         }
     }
 
@@ -48,12 +48,6 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         tvLoginStatus = findViewById(R.id.tvLoginStatus)
-
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         val prefs = getSharedPreferences("GupShupPrefs", MODE_PRIVATE)
         val savedUid = prefs.getString("user_uid", null)
@@ -64,7 +58,20 @@ class LoginActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnGoogleSignIn).setOnClickListener {
             tvLoginStatus.text = "Opening Google Accounts..."
-            signInLauncher.launch(googleSignInClient.signInIntent)
+            try {
+                val intent = AccountManager.newChooseAccountIntent(
+                    null,
+                    null,
+                    arrayOf("com.google"),
+                    null,
+                    null,
+                    null,
+                    null
+                )
+                accountPickerLauncher.launch(intent)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Account Picker Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -80,11 +87,12 @@ class LoginActivity : AppCompatActivity() {
                     dbRef.child("users").child(existingShortUid)
                         .addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(userSnap: DataSnapshot) {
-                                val coins = userSnap.child("coins").getValue(Int::class.java) ?: 50000
+                                val coins = userSnap.child("coins").getValue(Int::class.java)
+                                    ?: if (isSuperAdmin) 999999 else 50000
                                 saveLocalAndOpen(existingShortUid, name, email, coins, isSuperAdmin, false)
                             }
                             override fun onCancelled(error: DatabaseError) {
-                                saveLocalAndOpen(existingShortUid, name, email, 50000, isSuperAdmin, false)
+                                saveLocalAndOpen(existingShortUid, name, email, if (isSuperAdmin) 999999 else 50000, isSuperAdmin, false)
                             }
                         })
                 } else {
@@ -106,7 +114,7 @@ class LoginActivity : AppCompatActivity() {
 
             override fun onCancelled(error: DatabaseError) {
                 val fallbackUid = Random.nextInt(100000, 999999).toString()
-                saveLocalAndOpen(fallbackUid, name, email, 50000, isSuperAdmin, true)
+                saveLocalAndOpen(fallbackUid, name, email, if (isSuperAdmin) 999999 else 50000, isSuperAdmin, true)
             }
         })
     }
