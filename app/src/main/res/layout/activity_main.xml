@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:background="#0F0B1E">
 
-    <!-- Top Haza Royal Header -->
     <LinearLayout
         android:id="@+id/topHeader"
         android:layout_width="match_parent"
@@ -39,14 +38,12 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Main Content Area -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottomNav"
         android:layout_below="@id/topHeader">
 
-        <!-- TAB 0: HAZA PARTY LOBBY -->
         <ScrollView
             android:id="@+id/tabParty"
             android:layout_width="match_parent"
@@ -58,7 +55,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Create Room Banner -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -93,7 +89,6 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Quick Room ID Join -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -141,8 +136,6 @@
                     android:orientation="vertical" />
             </LinearLayout>
         </ScrollView>
-
-        <!-- TAB 1: GAMES & DAILY REWARDS -->
         <ScrollView
             android:id="@+id/tabGames"
             android:layout_width="match_parent"
@@ -155,7 +148,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Daily Bonus Card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -176,5 +168,249 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="Claim 10,000 Free Gold Coins every single day!"
-                        android:textColor="#D0C
-                        
+                        android:textColor="#D0C9E6"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnDailyBonus"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="14dp"
+                        android:backgroundTint="#00E676"
+                        android:text="Claim +10,000 Coins"
+                        android:textColor="#0F0B1E"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="#1E1736"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎰 Royal Greedy Wheel"
+                        android:textColor="#FF4081"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Spin &amp; win up to 45x Gold Coins!"
+                        android:textColor="#D0C9E6"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnOpenGreedy"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="14dp"
+                        android:backgroundTint="#FF4081"
+                        android:text="Play Greedy Game"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <ScrollView
+            android:id="@+id/tabMe"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#1E1736"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvUserAvatarMe"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="#2E2352"
+                        android:gravity="center"
+                        android:text="👑"
+                        android:textSize="36sp" />
+
+                    <TextView
+                        android:id="@+id/tvUserNameMe"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Royal Host"
+                        android:textColor="#FFFFFF"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvUserUidMe"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="ID: 100001 • ♂️ Male • ROYAL VIP"
+                        android:textColor="#FFD700"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvUserBioMe"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="Welcome to my Royal Voice Party! 🎙️👑"
+                        android:textColor="#B8B0D0"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvCoinsMe"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="#281F47"
+                        android:paddingStart="16dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="6dp"
+                        android:text="🪙 50000"
+                        android:textColor="#FFD700"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btnEditProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="14dp"
+                        android:backgroundTint="#7C4DFF"
+                        android:text="✏️ Edit Profile"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutSuperAdmin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="#2A1525"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🛡️ Super Admin Coin Control"
+                        android:textColor="#FF5252"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etTargetUid"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="10dp"
+                        android:background="#1A0D17"
+                        android:hint="Target 6-Digit User ID"
+                        android:inputType="number"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textColor="#FFFFFF"
+                        android:textColorHint="#9E7B8F" />
+
+                    <EditText
+                        android:id="@+id/etSendCoins"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="8dp"
+                        android:background="#1A0D17"
+                        android:hint="Coins (+50000 or -10000)"
+                        android:inputType="numberSigned"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textColor="#FFFFFF"
+                        android:textColorHint="#9E7B8F" />
+
+                    <Button
+                        android:id="@+id/btnAdminSendCoins"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="10dp"
+                        android:backgroundTint="#FF5252"
+                        android:text="Update User Coins"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="#32294D"
+                    android:text="🚪 Switch Account / Logout"
+                    android:textColor="#FF8A80"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_alignParentBottom="true"
+        android:background="#18122B"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/navParty"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="🎙️ Party"
+            android:textColor="#FFD700"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/navGames"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="🎰 Games"
+            android:textColor="#8E86AA"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/navMe"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="👤 Me"
+            android:textColor="#8E86AA"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</RelativeLayout>
