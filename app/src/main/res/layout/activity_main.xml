@@ -5,7 +5,6 @@
     android:orientation="vertical"
     android:background="#F5F7FA">
 
-    <!-- ==================== TAB 0: HAZA PRO PARTY HOME ==================== -->
     <LinearLayout
         android:id="@+id/tabParty"
         android:layout_width="match_parent"
@@ -14,7 +13,6 @@
         android:orientation="vertical"
         android:background="#F5F7FA">
 
-        <!-- Play Store Top Bar: Me | Popular | Search | +Room -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -61,7 +59,6 @@
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <!-- Coin Badge -->
             <TextView
                 android:id="@+id/tvCoinsTop"
                 android:layout_width="wrap_content"
@@ -76,7 +73,6 @@
                 android:textStyle="bold"
                 android:layout_marginEnd="8dp" />
 
-            <!-- Search Room Icon -->
             <TextView
                 android:id="@+id/btnTopSearch"
                 android:layout_width="36dp"
@@ -86,7 +82,6 @@
                 android:textSize="18sp"
                 android:layout_marginEnd="6dp" />
 
-            <!-- Create Room Icon (+ House) -->
             <TextView
                 android:id="@+id/btnCreateRoom"
                 android:layout_width="38dp"
@@ -111,7 +106,6 @@
                 android:orientation="vertical"
                 android:padding="12dp">
 
-                <!-- Weekly Star Royal Event Banner -->
                 <LinearLayout
                     android:id="@+id/bannerWeeklyStar"
                     android:layout_width="match_parent"
@@ -127,8 +121,7 @@
                         android:text="🐉 ROYAL CARNIVAL • SEASON 1 🐉"
                         android:textColor="#FFE082"
                         android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -149,14 +142,12 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- 4 Event Cards Row: Ranking | Family | CP | Free 100K -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="10dp">
 
-                    <!-- Card 1: Ranking -->
                     <LinearLayout
                         android:id="@+id/cardRanking"
                         android:layout_width="0dp"
@@ -184,7 +175,6 @@
                             android:textSize="22sp" />
                     </LinearLayout>
 
-                    <!-- Card 2: Family -->
                     <LinearLayout
                         android:id="@+id/cardFamily"
                         android:layout_width="0dp"
@@ -212,7 +202,6 @@
                             android:textSize="22sp" />
                     </LinearLayout>
 
-                    <!-- Card 3: CP -->
                     <LinearLayout
                         android:id="@+id/cardCp"
                         android:layout_width="0dp"
@@ -240,7 +229,6 @@
                             android:textSize="22sp" />
                     </LinearLayout>
 
-                    <!-- Card 4: Daily 100K Free Coins Event -->
                     <LinearLayout
                         android:id="@+id/cardDailyBonus"
                         android:layout_width="0dp"
@@ -268,7 +256,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Quick Room ID Join Strip -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
@@ -303,7 +290,6 @@
                         android:backgroundTint="#00C49A" />
                 </LinearLayout>
 
-                <!-- 2-Column Live Rooms Grid Container -->
                 <LinearLayout
                     android:id="@+id/liveRoomsContainer"
                     android:layout_width="match_parent"
@@ -312,11 +298,7 @@
                     android:layout_marginTop="10dp" />
 
             </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
-
-    <!-- ==================== TAB 1: GAMES & EVENTS CENTER ==================== -->
-    <ScrollView
+        </ScrollView>    <ScrollView
         android:id="@+id/tabGames"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -338,7 +320,6 @@
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-            <!-- Greedy 30s Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -359,7 +340,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="Bet Gold Coins on Crown, Pizza, Burger &amp; win up to 45x instant rewards!"
+                    android:text="Bet Gold Coins and win up to 45x instant rewards!"
                     android:textColor="#E2D9F3"
                     android:textSize="13sp" />
 
@@ -374,7 +355,6 @@
                     android:backgroundTint="#FFD700" />
             </LinearLayout>
 
-            <!-- Mega Daily Free Coins Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -391,14 +371,6 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Claim your daily Royal Treasure Chest of 1,00,000 Gold Coins!"
-                    android:textColor="#D0E1FF"
-                    android:textSize="13sp" />
-
                 <Button
                     android:id="@+id/btnClaimDailyGames"
                     android:layout_width="match_parent"
@@ -412,7 +384,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- ==================== TAB 2: ME (VIP PROFILE & ADMIN) ==================== -->
     <ScrollView
         android:id="@+id/tabMe"
         android:layout_width="match_parent"
@@ -427,7 +398,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Profile Header Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -475,4 +445,133 @@
                     android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/tv
+                    android:id="@+id/tvCoinsMe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="#FFD700"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:text="🪙 200000"
+                    android:textColor="#1A0B2E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnEditProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="14dp"
+                    android:text="✏️ Edit VIP Profile"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:backgroundTint="#8B5CF6" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutSuperAdmin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFF8E1"
+                android:padding="16dp"
+                android:layout_marginTop="14dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🛡️ SUPER ADMIN COIN CONTROL"
+                    android:textColor="#B27800"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etTargetUid"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="8dp"
+                    android:hint="Enter User ID"
+                    android:inputType="number"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etSendCoins"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="6dp"
+                    android:hint="Coins amount"
+                    android:inputType="numberSigned"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btnAdminSendCoins"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="8dp"
+                    android:text="⚡ SEND / UPDATE USER COINS"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:backgroundTint="#FF8F00" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="16dp"
+                android:text="🔄 Switch Google Account / Logout"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:backgroundTint="#E53935" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/navParty"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="🏠\nParty"
+            android:textColor="#00C49A"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/navGames"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="🎰\nEvents"
+            android:textColor="#8E96AA"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/navMe"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="😊\nMe"
+            android:textColor="#8E96AA"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>
+    
+    </LinearLayout>
+    
