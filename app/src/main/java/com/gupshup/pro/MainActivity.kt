@@ -78,44 +78,7 @@ class MainActivity : AppCompatActivity() {
     private val bottomNavItems = mutableListOf<TextView>()
     private val catPillViews = mutableListOf<TextView>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        try {
-            requestAudioPermission()
-            prefs = getSharedPreferences("GupShupPrefs", MODE_PRIVATE)
-            shortUid = prefs.getString("user_uid", "100001") ?: "100001"
-            userName = prefs.getString("user_name", "Its Meroyal") ?: "Its Meroyal"
-            userBio = prefs.getString("user_bio", "Welcome to my Royal Voice Party! 👑✨") ?: "Welcome to my Royal Voice Party! 👑✨"
-            userGender = prefs.getString("user_gender", "Male") ?: "Male"
-            userAvatar = prefs.getString("user_avatar", "👑") ?: "👑"
-            currentCoins = prefs.getInt("user_coins", 500000)
-            currentXp = prefs.getInt("user_xp", 100000)
-            isSuperAdmin = prefs.getBoolean("is_super_admin", false)
-            dbRef = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
-            buildCompleteHazaUI()
-            syncFirebaseUser()
-            loadRoomsData()
-        } catch (e: Exception) {
-            setContentView(TextView(this).apply { text = "Error: ${e.message}"; setTextColor(Color.WHITE); setBackgroundColor(Color.BLACK); setPadding(40, 40, 40, 40) })
-        }
-    }
-
-    private fun makeRoundedBg(colorHex: String, radiusDp: Float, strokeColor: String? = null, strokeWidth: Int = 0): GradientDrawable {
-        return GradientDrawable().apply {
-            setColor(Color.parseColor(colorHex))
-            cornerRadius = radiusDp * resources.displayMetrics.density
-            if (strokeColor != null && strokeWidth > 0) setStroke(strokeWidth, Color.parseColor(strokeColor))
-        }
-    }
-
-    private fun makeGradientBg(startHex: String, endHex: String, radiusDp: Float): GradientDrawable {
-        return GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(Color.parseColor(startHex), Color.parseColor(endHex))).apply {
-            cornerRadius = radiusDp * resources.displayMetrics.density
-        }
-    }
-
-    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
-
+    override fun on
     private fun buildCompleteHazaUI() {
         val rootFrame = FrameLayout(this).apply { setBackgroundColor(Color.parseColor("#0D101B")) }
         val mainVertical = LinearLayout(this).apply {
@@ -197,7 +160,9 @@ class MainActivity : AppCompatActivity() {
         tabPopBox.setOnClickListener { switchHomeSubTab(false) }
         switchMainTab(0)
         switchHomeSubTab(true)
-    }    private fun switchHomeSubTab(isMe: Boolean) {
+    }
+
+    private fun switchHomeSubTab(isMe: Boolean) {
         pageMeHome.visibility = if (isMe) View.VISIBLE else View.GONE
         pagePopularHome.visibility = if (!isMe) View.VISIBLE else View.GONE
         tvTopMe.setTextColor(if (isMe) Color.WHITE else Color.parseColor("#8A92B2"))
@@ -218,8 +183,7 @@ class MainActivity : AppCompatActivity() {
             tv.setTypeface(null, if (i == idx) Typeface.BOLD else Typeface.NORMAL)
         }
     }
-
-    private fun buildMeHomePage(): ScrollView {
+        private fun buildMeHomePage(): ScrollView {
         val scroll = ScrollView(this)
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(14), dp(12), dp(14), dp(24)) }
 
@@ -297,17 +261,43 @@ class MainActivity : AppCompatActivity() {
         catScroll.addView(catRow)
         col.addView(catScroll)
 
-        popularRoomsGrid = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        popularRoomsGrid = LinearLayout(
+            this).apply { orientation = LinearLayout.VERTICAL }
         col.addView(popularRoomsGrid)
         scroll.addView(col)
         return scroll
     }
-
-    private fun renderHazaTwoColumnGrid(targetGrid: LinearLayout, rooms: List>) {
+        private fun renderHazaTwoColumnGrid(targetGrid: LinearLayout, rooms: List>) {
         targetGrid.removeAllViews()
-        val colors = listOf("#1E294B" to "#3B1E54", "#1B3B48" to "#1E2749", "#3D1
-                            
-        private fun buildGamesAndTasksPage(): ScrollView {
+        val colors = listOf("#1E294B" to "#3B1E54", "#1B3B48" to "#1E2749", "#3D1C3A" to "#1F2235", "#243B2E" to "#1B2438")
+        var i = 0
+        while (i < rooms.size) {
+            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, 0, 0, dp(10)) }
+            for (colIdx in 0..1) {
+                if (i + colIdx < rooms.size) {
+                    val r = rooms[i + colIdx]
+                    val pairColor = colors[(i + colIdx) % colors.size]
+                    val card = LinearLayout(this).apply {
+                        orientation = LinearLayout.VERTICAL
+                        background = makeGradientBg(pairColor.first, pairColor.second, 14f)
+                        setPadding(dp(12), dp(12), dp(12), dp(12))
+                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { if (colIdx == 0) rightMargin = dp(8) }
+                        setOnClickListener { openLiveRoom(r["id"] ?: "100101", r["name"] ?: "Voice Party", r["host"] ?: "Host", r["cat"] ?: "Party") }
+                    }
+                    val topTag = TextView(this).apply { text = "🔥 ${r["cat"]}  •  👥 ${r["count"]}"; textSize = 10f; setTypeface(null, Typeface.BOLD); setTextColor(Color.parseColor("#FFD700")) }
+                    val title = TextView(this).apply { text = r["name"]; textSize = 14f; setTypeface(null, Typeface.BOLD); setTextColor(Color.WHITE); maxLines = 2; setPadding(0, dp(8), 0, dp(6)) }
+                    val host = TextView(this).apply { text = "🎙️ ${r["host"]}"; textSize = 11f; setTextColor(Color.parseColor("#B0BEC5")) }
+                    card.addView(topTag); card.addView(title); card.addView(host)
+                    row.addView(card)
+                } else {
+                    row.addView(View(this).apply { layoutParams = LinearLayout.LayoutParams(0, 1, 1f) })
+                }
+            }
+            targetGrid.addView(row)
+            i += 2
+        }
+        }
+            private fun buildGamesAndTasksPage(): ScrollView {
         val scroll = ScrollView(this)
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(16), dp(16), dp(16), dp(24)) }
         col.addView(TextView(this).apply { text = "🎮 Haza Party Games & Daily Tasks"; textSize = 20f; setTypeface(null, Typeface.BOLD); setTextColor(Color.WHITE); setPadding(0, 0, 0, dp(14)) })
@@ -339,9 +329,8 @@ class MainActivity : AppCompatActivity() {
         }
         scroll.addView(col)
         return scroll
-    }
-
-    private fun buildOneOnOneChatPage(): ScrollView {
+            }
+                private fun buildOneOnOneChatPage(): ScrollView {
         val scroll = ScrollView(this)
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(16), dp(16), dp(16), dp(24)) }
 
@@ -375,7 +364,35 @@ class MainActivity : AppCompatActivity() {
             card.addView(TextView(this).apply { text = lastMsg; textSize = 13f; setTextColor(Color.parseColor("#B0BEC5")) })
             col.addView(card)
         }
-            private fun buildProfileMePage(): ScrollView {
+        scroll.addView(col)
+        return scroll
+    }
+
+    private fun openOneOnOneConversation(friendName: String) {
+        val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(12), dp(18), dp(8)) }
+        val tvHistory = TextView(this).apply { text = "🔒 End-to-End Safe 1-on-1 Chat with $friendName\n\n$friendName: Salam / Hi! How are you? ✨"; textSize = 13f; setPadding(0, 0, 0, dp(10)) }
+        val etMsg = EditText(this).apply { hint = "Type a private message..." }
+        box.addView(tvHistory); box.addView(etMsg)
+                AlertDialog.Builder(this)
+            .setTitle("💬 $friendName")
+            .setView(box)
+            .setPositiveButton("Send") { _, _ ->
+                val txt = etMsg.text.toString().trim()
+                if (txt.isNotEmpty()) {
+                    dbRef.child("private_chats").push().setValue(mapOf("from" to userName, "to" to friendName, "msg" to txt))
+                    Toast.makeText(this, "Sent to $friendName ✅", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNeutralButton("🎁 Send Rose (100)") { _, _ ->
+                if (currentCoins >= 100) {
+                    currentCoins -= 100; saveLocalStats()
+                    Toast.makeText(this, "Sent 🌹 Rose Gift to $friendName!", Toast.LENGTH_SHORT).show()
+                } else Toast.makeText(this, "Not enough coins!", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Close", null)
+            .show()
+    }
+        private fun buildProfileMePage(): ScrollView {
         val scroll = ScrollView(this)
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(16), dp(16), dp(16), dp(28)) }
 
@@ -433,14 +450,17 @@ class MainActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) }
             setOnClickListener {
                 currentCoins += 100000; saveLocalStats()
-                Toast.makeText(this@MainActivity, "+100,000 Coins Added! 👑", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "+100
+                          ,000 Coins Added! 👑", Toast.LENGTH_SHORT).show()
             }
         }
         layoutSuperAdmin.addView(btnAddCoins)
         col.addView(layoutSuperAdmin)
 
         scroll.addView(col)
-        return scroll    private fun playLuckyRedEnvelope() {
+        return scroll
+                               }
+                   private fun playLuckyRedEnvelope() {
         val reward = listOf(500, 1000, 2500, 5000).random()
         currentCoins += reward
         saveLocalStats()
@@ -493,8 +513,7 @@ class MainActivity : AppCompatActivity() {
                 if (q.isNotEmpty()) openLiveRoom(q, "🎙️ $q Party Room", "Host", "Party")
             }.setNegativeButton("Cancel", null).show()
     }
-
-    private fun showCreateRoomDialog() {
+        private fun showCreateRoomDialog() {
         val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(12), dp(18), dp(8)) }
         val etName = EditText(this).apply { hint = "Room Title (e.g. Late Night Music & Shayari)" }
         val rg = RadioGroup(this).apply { orientation = RadioGroup.HORIZONTAL }
@@ -513,9 +532,8 @@ class MainActivity : AppCompatActivity() {
                 openLiveRoom(roomId, title, userName, cat)
             }.setNegativeButton("Cancel", null).show()
     }
-    
-            }
-                private fun showRechargeStoreDialog() {
+
+    private fun showRechargeStoreDialog() {
         val packs = arrayOf("₹85 ($1) ➔ 10,000 Coins", "₹425 ($5) ➔ 55,000 Coins 🔥", "₹850 ($10) ➔ 120,000 VIP Coins 👑")
         AlertDialog.Builder(this).setTitle("🪙 Haza Coin Store ($1 = 10,000 Coins)")
             .setItems(packs) { _, which ->
@@ -554,9 +572,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Safety Report ticket submitted to Moderation Team 🛡️", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("OK", null).show()
-    }
-
-    private fun copyUidToClipboard() {
+    }    private fun copyUidToClipboard() {
         val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         cm.setPrimaryClip(ClipData.newPlainText("UID", shortUid))
         Toast.makeText(this, "Copied ID: $shortUid ✅", Toast.LENGTH_SHORT).show()
@@ -581,7 +597,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun saveLocalStats() {
         prefs.edit().putInt("user_coins", currentCoins).putInt("user_xp", currentXp).apply()
-        tvProfileCoins.text = "🪙 $currentCoins Coins  |  ⚡ $currentXp XP"
+        tvProfileCoins.text = "🪙 $currentCoins Coins  \vert{}  ⚡$currentXp XP"
         syncFirebaseUser()
     }
 
@@ -597,8 +613,9 @@ class MainActivity : AppCompatActivity() {
             mapOf("id" to "100103", "name" to "💘 Dil Se Dil Tak 1-on-1 & Chat", "host" to "Riya Live", "cat" to "Dating", "count" to "215"),
             mapOf("id" to "100104", "name" to "🧧 Lucky Bag & Ring Toss Party", "host" to "Its Meroyal", "cat" to "Games", "count" to "176"),
             mapOf("id" to "100105", "name" to "🔥 Non-Stop Punjabi Beats", "host" to "Aryan", "cat" to "Music", "count" to "83"),
-            mapOf("id" to "100106", "name" to "🎉 Weekend Mega Voice Club", "host" to "Zoya", "cat" to "Party", "count" to "142")
-        )
+            mapOf("id" to "100106", "name" to "🎉 Weekend Mega Voice Club", "host" to "Z
+                  
+            )
         val filtered = if (selectedCategory == "All") defaultRooms else defaultRooms.filter { it["cat"].equals(selectedCategory, ignoreCase = true) }
         renderHazaTwoColumnGrid(meRoomsGrid, defaultRooms.take(4))
         renderHazaTwoColumnGrid(popularRoomsGrid, filtered.ifEmpty { defaultRooms })
@@ -628,5 +645,45 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 101)
         }
     }
+            }
+                private fun loadRoomsData() {
+        val defaultRooms = listOf(
+            mapOf("id" to "100101", "name" to "🎶 Late Night Bollywood & Lofi", "host" to "DJ Kabir", "cat" to "Music", "count" to "128"),
+            mapOf("id" to "100102", "name" to "👑 Royal Shayari & Friendship", "host" to "Ayisha Queen", "cat" to "Royal", "count" to "94"),
+            mapOf("id" to "100103", "name" to "💘 Dil Se Dil Tak 1-on-1 & Chat", "host" to "Riya Live", "cat" to "Dating", "count" to "215"),
+            mapOf("id" to "100104", "name" to "🧧 Lucky Bag & Ring Toss Party", "host" to "Its Meroyal", "cat" to "Games", "count" to "176"),
+            mapOf("id" to "100105", "name" to "🔥 Non-Stop Punjabi Beats", "host" to "Aryan", "cat" to "Music", "count" to "83"),
+            mapOf("id" to "100106", "name" to "🎉 Weekend Mega Voice Club", "host" to "Zoya", "cat" to "Party", "count" to "142")
+        )
+        val filtered = if (selectedCategory == "All") defaultRooms else defaultRooms.filter { it["cat"].equals(selectedCategory, ignoreCase = true) }
+        renderHazaTwoColumnGrid(meRoomsGrid, defaultRooms.take(4))
+        renderHazaTwoColumnGrid(popularRoomsGrid, filtered.ifEmpty { defaultRooms })
+
+        dbRef.child("rooms").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val liveList = ArrayList>()
+                for (child in snapshot.children) {
+                    val id = child.child("id").getValue(String::class.java) ?: child.key ?: continue
+                    val name = child.child("name").getValue(String::class.java) ?: continue
+                    val host = child.child("host").getValue(String::class.java) ?: "Host"
+                    val cat = child.child("cat").getValue(String::class.java) ?: "Party"
+                    val count = child.child("count").getValue(String::class.java) ?: "12"
+                    liveList.add(mapOf("id" to id, "name" to name, "host" to host, "cat" to cat, "count" to count))
+                }
+                val combined = liveList + defaultRooms
+                val finalFiltered = if (selectedCategory == "All") combined else combined.filter { it["cat"].equals(selectedCategory, ignoreCase = true) }
+                renderHazaTwoColumnGrid(meRoomsGrid, combined.take(4))
+                renderHazaTwoColumnGrid(popularRoomsGrid, finalFiltered.ifEmpty { combined })
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
-    
+
+    private fun requestAudioPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 101)
+        }
+    }
+            }
+            
+                
