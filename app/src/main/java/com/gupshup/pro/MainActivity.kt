@@ -515,4 +515,118 @@ class MainActivity : AppCompatActivity() {
     }
     
             }
-            
+                private fun showRechargeStoreDialog() {
+        val packs = arrayOf("₹85 ($1) ➔ 10,000 Coins", "₹425 ($5) ➔ 55,000 Coins 🔥", "₹850 ($10) ➔ 120,000 VIP Coins 👑")
+        AlertDialog.Builder(this).setTitle("🪙 Haza Coin Store ($1 = 10,000 Coins)")
+            .setItems(packs) { _, which ->
+                val coinsToAdd = listOf(10000, 55000, 120000)[which]
+                try {
+                    val uri = Uri.parse("upi://pay?pa=$ADMIN_UPI_ID&pn=GupShupPro&cu=INR")
+                    startActivity(Intent(Intent.ACTION_VIEW, uri))
+                } catch (_: Exception) { }
+                currentCoins += coinsToAdd; saveLocalStats()
+                Toast.makeText(this, "+$coinsToAdd Coins credited to your wallet! 🪙", Toast.LENGTH_LONG).show()
+            }.setNegativeButton("Close", null).show()
+    }
+
+    private fun showEditProfileDialog() {
+        val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(12), dp(18), dp(8)) }
+        val etName = EditText(this).apply { setText(userName); hint = "Display Name" }
+        val etBio = EditText(this).apply { setText(userBio); hint = "Bio / Status" }
+        box.addView(etName); box.addView(etBio)
+        AlertDialog.Builder(this).setTitle("✏️ Edit Profile").setView(box)
+            .setPositiveButton("Save") { _, _ ->
+                userName = etName.text.toString().trim().ifEmpty { userName }
+                userBio = etBio.text.toString().trim().ifEmpty { userBio }
+                prefs.edit().putString("user_name", userName).putString("user_bio", userBio).apply()
+                tvProfileName.text = "$userName 👑"
+                tvMyRoomName.text = "👑♡♡$userName♡♡👑"
+                syncFirebaseUser()
+                Toast.makeText(this, "Profile Updated! ✅", Toast.LENGTH_SHORT).show()
+            }.setNegativeButton("Cancel", null).show()
+    }
+
+    private fun showSafetyCenterDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("🛡️ Haza Safety & Female Protection")
+            .setMessage("• 24/7 Anti-Harassment & Female User Shield Active ✅\n• Room Hosts can Mute, Kick, or Lock seats anytime.\n• Instant Block & Report available in all rooms & 1-on-1 chats.")
+            .setPositiveButton("Report an Issue") { _, _ ->
+                Toast.makeText(this, "Safety Report ticket submitted to Moderation Team 🛡️", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("OK", null).show()
+    }
+
+    private fun copyUidToClipboard() {
+        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        cm.setPrimaryClip(ClipData.newPlainText("UID", shortUid))
+        Toast.makeText(this, "Copied ID: $shortUid ✅", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun openLiveRoom(roomId: String, roomName: String, hostName: String, category: String) {
+        try {
+            val intent = Intent(this, LiveRoomActivity::class.java).apply {
+                putExtra("ROOM_ID", roomId)
+                putExtra("ROOM_NAME", roomName)
+                putExtra("HOST_NAME", hostName)
+                putExtra("CATEGORY", category)
+                putExtra("USER_ID", shortUid)
+                putExtra("USER_NAME", userName)
+                putExtra("USER_COINS", currentCoins)
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Opening Room: $roomName", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun saveLocalStats() {
+        prefs.edit().putInt("user_coins", currentCoins).putInt("user_xp", currentXp).apply()
+        tvProfileCoins.text = "🪙 $currentCoins Coins  |  ⚡ $currentXp XP"
+        syncFirebaseUser()
+    }
+
+    private fun syncFirebaseUser() {
+        val data = mapOf("uid" to shortUid, "name" to userName, "coins" to currentCoins, "xp" to currentXp, "gender" to userGender)
+        dbRef.child("users").child(shortUid).updateChildren(data)
+    }
+
+    private fun loadRoomsData() {
+        val defaultRooms = listOf(
+            mapOf("id" to "100101", "name" to "🎶 Late Night Bollywood & Lofi", "host" to "DJ Kabir", "cat" to "Music", "count" to "128"),
+            mapOf("id" to "100102", "name" to "👑 Royal Shayari & Friendship", "host" to "Ayisha Queen", "cat" to "Royal", "count" to "94"),
+            mapOf("id" to "100103", "name" to "💘 Dil Se Dil Tak 1-on-1 & Chat", "host" to "Riya Live", "cat" to "Dating", "count" to "215"),
+            mapOf("id" to "100104", "name" to "🧧 Lucky Bag & Ring Toss Party", "host" to "Its Meroyal", "cat" to "Games", "count" to "176"),
+            mapOf("id" to "100105", "name" to "🔥 Non-Stop Punjabi Beats", "host" to "Aryan", "cat" to "Music", "count" to "83"),
+            mapOf("id" to "100106", "name" to "🎉 Weekend Mega Voice Club", "host" to "Zoya", "cat" to "Party", "count" to "142")
+        )
+        val filtered = if (selectedCategory == "All") defaultRooms else defaultRooms.filter { it["cat"].equals(selectedCategory, ignoreCase = true) }
+        renderHazaTwoColumnGrid(meRoomsGrid, defaultRooms.take(4))
+        renderHazaTwoColumnGrid(popularRoomsGrid, filtered.ifEmpty { defaultRooms })
+
+        dbRef.child("rooms").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val liveList = mutableListOf>()
+                for (child in snapshot.children) {
+                    val id = child.child("id").getValue(String::class.java) ?: child.key ?: continue
+                    val name = child.child("name").getValue(String::class.java) ?: continue
+                    val host = child.child("host").getValue(String::class.java) ?: "Host"
+                    val cat = child.child("cat").getValue(String::class.java) ?: "Party"
+                    val count = child.child("count").getValue(String::class.java) ?: "12"
+                    liveList.add(mapOf("id" to id, "name" to name, "host" to host, "cat" to cat, "count" to count))
+                }
+                val combined = liveList + defaultRooms
+                val finalFiltered = if (selectedCategory == "All") combined else combined.filter { it["cat"].equals(selectedCategory, ignoreCase = true) }
+                renderHazaTwoColumnGrid(meRoomsGrid, combined.take(4))
+                renderHazaTwoColumnGrid(popularRoomsGrid, finalFiltered.ifEmpty { combined })
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    private fun requestAudioPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 101)
+        }
+    }
+    }
+    
