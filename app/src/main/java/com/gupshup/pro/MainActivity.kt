@@ -94,10 +94,11 @@ class MainActivity : AppCompatActivity() {
             syncFirebaseUser()
             loadRoomsData()
         } catch (e: Exception) {
-            setContentView(TextView(this).apply { text = "Error: ${e.message}"; setTextColor(Color.WHITE); setBackgroundColor(Color.BLACK) })
+            setContentView(TextView(this).apply { text = "Error: ${e.message}"; setTextColor(Color.WHITE); setBackgroundColor(Color.BLACK); setPadding(40, 40, 40, 40) })
         }
     }
-        private fun makeRoundedBg(colorHex: String, radiusDp: Float, strokeColor: String? = null, strokeWidth: Int = 0): GradientDrawable {
+
+    private fun makeRoundedBg(colorHex: String, radiusDp: Float, strokeColor: String? = null, strokeWidth: Int = 0): GradientDrawable {
         return GradientDrawable().apply {
             setColor(Color.parseColor(colorHex))
             cornerRadius = radiusDp * resources.displayMetrics.density
@@ -110,8 +111,7 @@ class MainActivity : AppCompatActivity() {
             cornerRadius = radiusDp * resources.displayMetrics.density
         }
     }
-
-    private fun buildCompleteHazaUI() {
+        private fun buildCompleteHazaUI() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.parseColor("#F5F7FA"))
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setBackgroundColor(Color.WHITE)
-            setPadding(36, 26, 36, 16)
+            setPadding(36, 20, 36, 16)
         }
 
         val meTabWrap = LinearLayout(this).apply {
@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
         }
         indTopPopular = View(this).apply {
             background = makeRoundedBg("#00C49A", 4f)
-            layoutParams = LinearLayout.LayoutParams(68, 10).apply { topMargin = 4 }
+            layoutParams = LinearLayout.LayoutParams(80, 10).apply { topMargin = 4 }
         }
         popTabWrap.addView(tvTopPopular)
         popTabWrap.addView(indTopPopular)
@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity() {
             text = "🏠+"
             textSize = 18f
             setTextColor(Color.WHITE)
-            background = makeGradientBg("#8B5CF6", "#6D28D9", 14f)
+            background = makeGradientBg("#00C9F6", "#6D28D9", 14f)
             setPadding(22, 10, 22, 10)
             setOnClickListener { showCreateRoomDialog() }
         }
@@ -209,11 +209,11 @@ class MainActivity : AppCompatActivity() {
         val bottomNav = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             setBackgroundColor(Color.WHITE)
-            setPadding(0, 16, 0, 18)
+            setPadding(0, 18, 0, 18)
             elevation = 16f
         }
 
-        val navLabels = listOf("🏠\nParty", "🎮\nGames", "💬\nChat (2)", "👤\nProfile")
+        val navLabels = listOf("🏠\nParty", "🎮\nGames", "💬\nChat (1)", "👤\nProfile")
         navLabels.forEachIndexed { idx, label ->
             val tv = TextView(this).apply {
                 text = label
@@ -235,747 +235,493 @@ class MainActivity : AppCompatActivity() {
             bottomNav.addView(tv)
         }
         root.addView(bottomNav)
-
         setContentView(root)
         switchMainSection(1)
-    }
-        private fun buildMeHomeTab(): ScrollView {
-        val scroll = ScrollView(this).apply { visibility = View.GONE }
-        val box = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(32, 24, 32, 48)
         }
+            private fun switchMainSection(sec: Int) {
+        pageMeHome.visibility = if (sec == 0) View.VISIBLE else View.GONE
+        pagePopularHome.visibility = if (sec == 1) View.VISIBLE else View.GONE
+        pageGamesHub.visibility = if (sec == 2) View.VISIBLE else View.GONE
+        pageMessages.visibility = if (sec == 3) View.VISIBLE else View.GONE
+        pageProfileMe.visibility = if (sec == 4) View.VISIBLE else View.GONE
+        topBarHeader.visibility = if (sec == 0 || sec == 1) View.VISIBLE else View.GONE
 
-        val myRoomCard = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            background = makeRoundedBg("#FFFFFF", 18f)
-            setPadding(24, 24, 28, 24)
-            elevation = 4f
-            setOnClickListener { openRoom(shortUid, true) }
-        }
-        val avatarBox = TextView(this).apply {
-            text = userAvatar
-            textSize = 32f
-            gravity = Gravity.CENTER
-            background = makeGradientBg("#2E1A47", "#5B2C6F", 14f)
-            layoutParams = LinearLayout.LayoutParams(128, 128)
-        }
-        tvMyRoomName = TextView(this).apply {
-            text = "👑♡♡$userName♡♡👑\nTap to enter your Royal Room"
-            textSize = 15f
-            setTextColor(Color.parseColor("#1A1D26"))
-            setTypeface(null, Typeface.BOLD)
-            setPadding(24, 0, 12, 0)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        val arrow = TextView(this).apply {
-            text = "❯"
-            textSize = 18f
-            setTextColor(Color.parseColor("#8E96AA"))
-        }
-        myRoomCard.addView(avatarBox)
-        myRoomCard.addView(tvMyRoomName)
-        myRoomCard.addView(arrow)
-        box.addView(myRoomCard)
+        tvTopMe.setTextColor(if (sec == 0) Color.parseColor("#1A1D26") else Color.parseColor("#8E96AA"))
+        tvTopPopular.setTextColor(if (sec == 1) Color.parseColor("#1A1D26") else Color.parseColor("#8E96AA"))
+        indTopMe.visibility = if (sec == 0) View.VISIBLE else View.INVISIBLE
+        indTopPopular.visibility = if (sec == 1) View.VISIBLE else View.INVISIBLE
 
-        box.addView(TextView(this).apply {
-            text = "Following   •   Recent Rooms"
-            textSize = 15f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#1A1D26"))
-            setPadding(8, 32, 8, 20)
-        })
-
-        meRoomsGrid = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        box.addView(meRoomsGrid)
-
-        scroll.addView(box)
-        return scroll
+        val activeNav = when (sec) { 0, 1 -> 0; 2 -> 1; 3 -> 2; else -> 3 }
+        bottomNavItems.forEachIndexed { i, tv ->
+            tv.setTextColor(if (i == activeNav) Color.parseColor("#00C49A") else Color.parseColor("#8E96AA"))
+        }
     }
 
     private fun buildPopularHomeTab(): ScrollView {
         val scroll = ScrollView(this)
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(28, 16, 28, 48)
+            setPadding(28, 20, 28, 40)
         }
 
-        val rocketTicker = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            background = makeGradientBg("#1E3A8A", "#0284C7", 18f)
-            setPadding(24, 18, 24, 18)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 20 }
-            setOnClickListener { openRoom("551754", false) }
-        }
-        rocketTicker.addView(TextView(this).apply {
-            text = "🚀 Room ID: 551754\nLaunching LV3 Purple Rocket (2X Rewards!)"
-            setTextColor(Color.WHITE)
-            textSize = 13f
-            setTypeface(null, Typeface.BOLD)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        })
-        rocketTicker.addView(TextView(this).apply {
-            text = "  Go ➔  "
-            setTextColor(Color.parseColor("#1A0B2E"))
-            background = makeRoundedBg("#FFD700", 20f)
-            textSize = 13f
-            setTypeface(null, Typeface.BOLD)
-            setPadding(16, 10, 16, 10)
-        })
-        box.addView(rocketTicker)
-
-        val heroBanner = LinearLayout(this).apply {
+        val banner = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            background = makeGradientBg("#B91C1C", "#F59E0B", 20f)
-            setPadding(32, 34, 32, 34)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 22 }
+            background = makeGradientBg("#4C1D95", "#B45309", 24f)
+            setPadding(36, 36, 36, 36)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 24 }
             setOnClickListener { showWealthPodiumDialog() }
         }
-        heroBanner.addView(TextView(this).apply {
-            text = "🐉 PK SUPPORT & 2X LUCKY CARNIVAL 🏆"
-            setTextColor(Color.parseColor("#FFFBEB"))
-            textSize = 18f
+        banner.addView(TextView(this).apply {
+            text = "🏆 WEALTH & CHARM 2X PODIUM"
+            textSize = 20f
             setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#FFD700"))
         })
-        heroBanner.addView(TextView(this).apply {
-            text = "Double Coins & Double EXP • Win up to 40,00,000 Coins!"
+        banner.addView(TextView(this).apply {
+            text = "Top 10 Weekly Ranking • Tap to View Live Podium ➔"
+            textSize = 13f
             setTextColor(Color.WHITE)
-            textSize = 12f
-            gravity = Gravity.CENTER
             setPadding(0, 8, 0, 0)
         })
-        box.addView(heroBanner)
+        box.addView(banner)
 
-        val trioRow = LinearLayout(this).apply {
+        val quickRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 24 }
         }
-        val cardConfigs = listOf(
-            Triple("🏆\nRanking", "#FEF3C7", "#B45309"),
-            Triple("🏰\nFamily", "#DBEAFE", "#1D4ED8"),
-            Triple("💑\nCP Space", "#F3E8FF", "#7E22CE")
-        )
-        cardConfigs.forEachIndexed { idx, (label, bgHex, txtHex) ->
+        val qItems = listOf("🏆\nPodium", "🎡\nGreedy", "🎁\n200K Free", "💎\nVIP")
+        qItems.forEachIndexed { idx, label ->
             val card = TextView(this).apply {
                 text = label
-                textSize = 14f
+                textSize = 13f
                 gravity = Gravity.CENTER
                 setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor(txtHex))
-                background = makeRoundedBg(bgHex, 16f)
+                setTextColor(Color.parseColor("#1A1D26"))
+                background = makeRoundedBg("#FFFFFF", 18f)
                 setPadding(12, 24, 12, 24)
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                    if (idx < 2) rightMargin = 14
+                    if (idx < 3) rightMargin = 14
                 }
                 setOnClickListener {
                     when (idx) {
                         0 -> showWealthPodiumDialog()
-                        1 -> showSimplePopup("🏰 ROYAL FAMILY CLAN", "Join or create your Royal Family!\n• Family Badge on profile\n• Weekly 20,00,000 Coin Treasury (2X!)")
-                        2 -> showSimplePopup("💑 ROYAL CP SPACE", "Send a Diamond Ring inside any Voice Room to unlock Golden Heart CP Frame!")
+                        1 -> startActivity(Intent(this@MainActivity, GreedyGameActivity::class.java))
+                        2 -> claimDaily200kCoins()
+                        3 -> switchMainSection(4)
                     }
                 }
             }
-            trioRow.addView(card)
+            quickRow.addView(card)
         }
-        box.addView(trioRow)
+        box.addView(quickRow)
+
+        box.addView(TextView(this).apply {
+            text = "🔥 Live Royal Voice Rooms"
+            textSize = 18f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#1A1D26"))
+            setPadding(4, 0, 0, 16)
+        })
 
         popularRoomsGrid = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         box.addView(popularRoomsGrid)
+        scroll.addView(box)
+        return scroll
+    }
 
+    private fun buildMeHomeTab(): ScrollView {
+        val scroll = ScrollView(this)
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(28, 20, 28, 40)
+        }
+
+        val myRoomCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = makeGradientBg("#00B4D8", "#4F46E5", 24f)
+            setPadding(36, 36, 36, 36)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 24 }
+            setOnClickListener { openRoom("100101", true) }
+        }
+        myRoomCard.addView(TextView(this).apply {
+            text = "👑 MY ROYAL PARTY ROOM"
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#E0F2FE"))
+        })
+        tvMyRoomName = TextView(this).apply {
+            text = "👑♡♡$userName♡♡👑\nTap to enter your Royal Room"
+            textSize = 19f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            setPadding(0, 10, 0, 0)
+        }
+        myRoomCard.addView(tvMyRoomName)
+        box.addView(myRoomCard)
+
+        box.addView(TextView(this).apply {
+            text = "⭐ Followed & Recent Rooms"
+            textSize = 18f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#1A1D26"))
+            setPadding(4, 0, 0, 16)
+        })
+
+        meRoomsGrid = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        box.addView(meRoomsGrid)
         scroll.addView(box)
         return scroll
     }
         private fun buildGamesHubTab(): ScrollView {
-        val scroll = ScrollView(this).apply { visibility = View.GONE }
+        val scroll = ScrollView(this)
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(32, 28, 32, 48)
+            setPadding(28, 24, 28, 40)
         }
 
         box.addView(TextView(this).apply {
-            text = "🎮 2X REWARDS & JACKPOT GAMES"
-            textSize = 19f
+            text = "🎮 Royal Arcade & Games"
+            textSize = 22f
             setTypeface(null, Typeface.BOLD)
             setTextColor(Color.parseColor("#1A1D26"))
-            setPadding(0, 0, 0, 24)
+            setPadding(0, 0, 0, 20)
         })
 
-        val dailyCard = LinearLayout(this).apply {
+        val greedyCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            background = makeGradientBg("#059669", "#10B981", 20f)
-            setPadding(32, 32, 32, 32)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 24 }
-        }
-        dailyCard.addView(TextView(this).apply {
-            text = "🎁 2X DAILY VIP CHECK-IN BONUS"
-            setTextColor(Color.WHITE)
-            textSize = 18f
-            setTypeface(null, Typeface.BOLD)
-        })
-        dailyCard.addView(TextView(this).apply {
-            text = "Claim 🪙 2,00,000 FREE Coins + ⚡ 1,00,000 EXP every day!"
-            setTextColor(Color.parseColor("#ECFDF5"))
-            textSize = 13f
-            setPadding(0, 8, 0, 20)
-        })
-        dailyCard.addView(Button(this).apply {
-            text = "✨ CLAIM +2,00,000 COINS & +1,00,000 XP"
-            setTextColor(Color.parseColor("#064E3B"))
-            background = makeRoundedBg("#FFD700", 14f)
-            setTypeface(null, Typeface.BOLD)
-            setOnClickListener { claimDaily200kCoins() }
-        })
-        box.addView(dailyCard)
-
-        val gameCard = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = makeGradientBg("#4C1D95", "#7C3AED", 20f)
-            setPadding(32, 32, 32, 32)
-        }
-        gameCard.addView(TextView(this).apply {
-            text = "🎰 GREEDY & FRUIT JACKPOT WHEEL"
-            setTextColor(Color.parseColor("#FFD700"))
-            textSize = 18f
-            setTypeface(null, Typeface.BOLD)
-        })
-        gameCard.addView(TextView(this).apply {
-            text = "Bet Gold Coins & win up to 45x Mega Jackpot in 30 seconds!"
-            setTextColor(Color.WHITE)
-            textSize = 13f
-            setPadding(0, 8, 0, 20)
-        })
-        gameCard.addView(Button(this).apply {
-            text = "🔥 PLAY GREEDY & FRUIT GAME"
-            setTextColor(Color.WHITE)
-            background = makeRoundedBg("#F59E0B", 14f)
-            setTypeface(null, Typeface.BOLD)
+            background = makeGradientBg("#F59E0B", "#DC2626", 24f)
+            setPadding(36, 36, 36, 36)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 20 }
             setOnClickListener { startActivity(Intent(this@MainActivity, GreedyGameActivity::class.java)) }
+        }
+        greedyCard.addView(TextView(this).apply {
+            text = "🎡 GREEDY WHEEL 30s"
+            textSize = 21f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
         })
-        box.addView(gameCard)
+        greedyCard.addView(TextView(this).apply {
+            text = "Bet on 8 Royal Items • Win up to 45X Gold Coins! Tap to Play ➔"
+            textSize = 14f
+            setTextColor(Color.parseColor("#FEF3C7"))
+            setPadding(0, 8, 0, 0)
+        })
+        box.addView(greedyCard)
+
+        val ludoCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = makeGradientBg("#10B981", "#047857", 24f)
+            setPadding(36, 36, 36, 36)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 20 }
+            setOnClickListener { showSimplePopup("🎲 Royal Ludo", "4-Player Voice Ludo Room matchmaking opening soon! Play Greedy Wheel right now for 45X rewards.") }
+        }
+        ludoCard.addView(TextView(this).apply {
+            text = "🎲 ROYAL VOICE LUDO"
+            textSize = 20f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+        })
+        ludoCard.addView(TextView(this).apply {
+            text = "Play with friends on live mic • Coming Soon"
+            textSize = 13f
+            setTextColor(Color.parseColor("#D1FAE5"))
+            setPadding(0, 6, 0, 0)
+        })
+        box.addView(ludoCard)
 
         scroll.addView(box)
         return scroll
     }
 
     private fun buildMessagesTab(): ScrollView {
-        val scroll = ScrollView(this).apply { visibility = View.GONE }
+        val scroll = ScrollView(this)
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(32, 28, 32, 48)
+            setPadding(28, 24, 28, 40)
         }
+
         box.addView(TextView(this).apply {
-            text = "💬 OFFICIAL MESSAGES & ALERTS"
-            textSize = 18f
+            text = "💬 Messages & System"
+            textSize = 22f
             setTypeface(null, Typeface.BOLD)
             setTextColor(Color.parseColor("#1A1D26"))
-            setPadding(0, 0, 0, 24)
+            setPadding(0, 0, 0, 20)
         })
 
-        val msgs = listOf(
-            Triple("👑 GupShup Official Team", "Welcome to GupShup Pro! Your VIP ID $shortUid has 🪙 $currentCoins & ⚡ $currentXp EXP (2X Edition).", "Just now"),
-            Triple("🚀 Lv.3 Rocket Launch", "Room 551754 launched a Lv.3 Purple Rocket! Join now to win 40,00,000 Coins!", "2m ago")
-        )
-        msgs.forEach { (sender, body, time) ->
-            val card = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                background = makeRoundedBg("#FFFFFF", 16f)
-                setPadding(28, 24, 28, 24)
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 18 }
-            }
-            card.addView(TextView(this).apply {
-                text = "$sender   •   $time"
-                textSize = 14f
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor("#1A1D26"))
-            })
-            card.addView(TextView(this).apply {
-                text = body
-                textSize = 13f
-                setTextColor(Color.parseColor("#4B5563"))
-                setPadding(0, 8, 0, 0)
-            })
-            box.addView(card)
+        val sysCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = makeRoundedBg("#FFFFFF", 20f)
+            setPadding(32, 28, 32, 28)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 16 }
+            setOnClickListener { showSimplePopup("👑 GupShupPro Official", "Welcome to GupShupPro! Claim your daily 2,00,000 Free Coins every day and climb the Weekly Wealth Podium!") }
         }
+        sysCard.addView(TextView(this).apply {
+            text = "👑 GupShupPro Official Team"
+            textSize = 16f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#1A1D26"))
+        })
+        sysCard.addView(TextView(this).apply {
+            text = "Welcome! Tap here to claim your 2,00,000 Daily Royal Bonus 🎁"
+            textSize = 13f
+            setTextColor(Color.parseColor("#6B7280"))
+            setPadding(0, 8, 0, 0)
+        })
+        box.addView(sysCard)
+
         scroll.addView(box)
         return scroll
     }
         private fun buildProfileMeTab(): ScrollView {
-        val scroll = ScrollView(this).apply { visibility = View.GONE }
+        val scroll = ScrollView(this)
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(32, 28, 32, 48)
+            setPadding(28, 24, 28, 40)
         }
 
-        val headerRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(8, 12, 8, 24)
-            setOnClickListener { showEditProfileDialog() }
+        val profCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            background = makeGradientBg("#1E1B4B", "#4C1D95", 24f)
+            setPadding(36, 40, 36, 40)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 20 }
         }
         tvProfileAvatar = TextView(this).apply {
             text = userAvatar
-            textSize = 42f
+            textSize = 46f
             gravity = Gravity.CENTER
-            background = makeGradientBg("#23123D", "#5B2C6F", 45f)
-            layoutParams = LinearLayout.LayoutParams(165, 165)
-        }
-        val infoCol = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(28, 0, 12, 0)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
         tvProfileName = TextView(this).apply {
             text = "👑♡♡$userName♡♡👑"
-            textSize = 19f
+            textSize = 21f
             setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#1A1D26"))
+            setTextColor(Color.WHITE)
+            setPadding(0, 10, 0, 4)
         }
         tvProfileUid = TextView(this).apply {
             text = "ID:$shortUid 📋  •  Lv.${(currentXp / 50000) + 1}"
             textSize = 13f
-            setTextColor(Color.parseColor("#6B7280"))
-            setPadding(0, 8, 0, 8)
+            setTextColor(Color.parseColor("#C7D2FE"))
             setOnClickListener {
-                val cb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                cb.setPrimaryClip(ClipData.newPlainText("UID", shortUid))
-                Toast.makeText(this@MainActivity, "📋 Copied ID: $shortUid", Toast.LENGTH_SHORT).show()
+                val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                cm.setPrimaryClip(ClipData.newPlainText("UID", shortUid))
+                Toast.makeText(this@MainActivity, "UID $shortUid copied!", Toast.LENGTH_SHORT).show()
             }
         }
         tvProfileCoins = TextView(this).apply {
             text = "🪙 $currentCoins  •  ⚡ $currentXp XP"
-            textSize = 13f
+            textSize = 15f
             setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#B45309"))
+            setTextColor(Color.parseColor("#FFD700"))
+            setPadding(0, 12, 0, 0)
         }
-        infoCol.addView(tvProfileName)
-        infoCol.addView(tvProfileUid)
-        infoCol.addView(tvProfileCoins)
+        profCard.addView(tvProfileAvatar)
+        profCard.addView(tvProfileName)
+        profCard.addView(tvProfileUid)
+        profCard.addView(tvProfileCoins)
+        box.addView(profCard)
 
-        val editArrow = TextView(this).apply {
-            text = "✏️ ❯"
-            textSize = 16f
-            setTextColor(Color.parseColor("#8E96AA"))
-        }
-        headerRow.addView(tvProfileAvatar)
-        headerRow.addView(infoCol)
-        headerRow.addView(editArrow)
-        box.addView(headerRow)
-
-        val statsRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(0, 8, 0, 28)
-        }
-        val statsData = listOf("215\nFriend", "3K\nFollowing", "240\nFollowers", "1.8K\nVisitors")
-        statsData.forEach { st ->
-            statsRow.addView(TextView(this).apply {
-                text = st
-                textSize = 14f
-                gravity = Gravity.CENTER
+        val menuItems = listOf(
+            "✏️ Edit Royal Profile & Avatar",
+            "🎁 Claim Daily 2,00,000 Free Coins",
+            "💎 VIP Royal Store & Recharge",
+            "🏆 Weekly Wealth & Charm Podium"
+        )
+        menuItems.forEachIndexed { idx, label ->
+            val btn = TextView(this).apply {
+                text = label
+                textSize = 16f
                 setTypeface(null, Typeface.BOLD)
                 setTextColor(Color.parseColor("#1A1D26"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            })
-        }
-        box.addView(statsRow)
-
-        val dualRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 26 }
-        }
-        val cardSvip = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            background = makeGradientBg("#291D0E", "#85581F", 18f)
-            setPadding(28, 30, 28, 30)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { rightMargin = 14 }
-            setOnClickListener { showSimplePopup("👑 ROYAL SVIP 7", "Your SVIP 7 Privileges:\n• Golden Entry Ride in all rooms\n• 2X Daily Coins & 2X EXP Boost\n• Exclusive VIP Nameplate & Frame") }
-        }
-        cardSvip.addView(TextView(this).apply {
-            text = "SVIP  👑"
-            setTextColor(Color.parseColor("#FDE68A"))
-            textSize = 18f
-            setTypeface(null, Typeface.BOLD)
-        })
-
-        val cardWallet = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            background = makeGradientBg("#0F294A", "#1D4ED8", 18f)
-            setPadding(28, 30, 28, 30)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { leftMargin = 14 }
-            setOnClickListener { showWalletRechargeDialog() }
-        }
-        cardWallet.addView(TextView(this).apply {
-            text = "Wallet  👛"
-            setTextColor(Color.WHITE)
-            textSize = 18f
-            setTypeface(null, Typeface.BOLD)
-        })
-        dualRow.addView(cardSvip)
-        dualRow.addView(cardWallet)
-        box.addView(dualRow)
-                val menuCard = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = makeRoundedBg("#FFFFFF", 20f)
-            setPadding(28, 12, 28, 12)
-        }
-        val menuItems = listOf(
-            Triple("👥  Invite Friends", "Get +1,00,000 Coins ❯", "#FEF3C7"),
-            Triple("👑  Aristocracy", "Royal Duke & King ❯", "#FFFFFF"),
-            Triple("🛡️  Family", "Royal Clan ❯", "#FFFFFF"),
-            Triple("🏠  CP Space", "Couple Ring ❯", "#FFFFFF"),
-            Triple("🏪  Store (Rides & Frames)", "2X VIP Shop ❯", "#FFFFFF"),
-            Triple("👕  Dress & Avatar Frames", "Equipped ❯", "#FFFFFF"),
-            Triple("🎒  My Bag", "Gifts & Cards ❯", "#FFFFFF"),
-            Triple("🏅  Medal & Achievements", "Lv.62 Pro ❯", "#FFFFFF")
-        )
-        menuItems.forEach { (leftTxt, rightTxt, badgeBg) ->
-            val row = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(8, 26, 8, 26)
+                background = makeRoundedBg("#FFFFFF", 18f)
+                setPadding(32, 32, 32, 32)
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 14 }
                 setOnClickListener {
-                    if (leftTxt.contains("Invite")) {
-                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, "Join me on GupShup Pro Voice Party! Use my ID $shortUid & get 5,00,000 FREE Coins!")
-                        }
-                        startActivity(Intent.createChooser(shareIntent, "Invite Friends"))
-                    } else {
-                        showSimplePopup(leftTxt.trim(), "Feature unlocked with your SVIP 7 account!\nCurrent Balance: 🪙 $currentCoins\nCurrent EXP: ⚡ $currentXp")
+                    when (idx) {
+                        0 -> showEditProfileDialog()
+                        1 -> claimDaily200kCoins()
+                        2 -> showVipRechargeDialog()
+                        3 -> showWealthPodiumDialog()
                     }
                 }
             }
-            row.addView(TextView(this).apply {
-                text = leftTxt
-                textSize = 15f
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor("#1A1D26"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            })
-            row.addView(TextView(this).apply {
-                text = rightTxt
-                textSize = 12f
-                setTextColor(Color.parseColor("#B45309"))
-                background = makeRoundedBg(badgeBg, 14f)
-                setPadding(16, 8, 16, 8)
-            })
-            menuCard.addView(row)
+            box.addView(btn)
         }
-        box.addView(menuCard)
 
         layoutSuperAdmin = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            background = makeRoundedBg("#FFFBEB", 18f, "#F59E0B", 3)
-            setPadding(32, 32, 32, 32)
             visibility = if (isSuperAdmin) View.VISIBLE else View.GONE
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 28 }
         }
-        layoutSuperAdmin.addView(TextView(this).apply {
-            text = "🛡️ SUPER ADMIN COIN & XP CONTROL"
-            setTextColor(Color.parseColor("#B45309"))
-            textSize = 15f
+        val btnAdmin = TextView(this).apply {
+            text = "🛡️ SUPER ADMIN PANEL"
+            textSize = 16f
             setTypeface(null, Typeface.BOLD)
-        })
-        val etTargetUid = EditText(this).apply { hint = "Enter User ID (e.g. 100001)" }
-        val etSendCoins = EditText(this).apply { hint = "Coins to Add/Deduct (e.g. 1000000)" }
-        val btnSend = Button(this).apply {
-            text = "⚡ SEND / UPDATE USER COINS"
             setTextColor(Color.WHITE)
-            background = makeRoundedBg("#D97706", 12f)
-            setTypeface(null, Typeface.BOLD)
-            setOnClickListener {
-                val targetUid = etTargetUid.text.toString().trim()
-                val amount = etSendCoins.text.toString().trim().toIntOrNull()
-                if (targetUid.isEmpty() || amount == null) {
-                    Toast.makeText(this@MainActivity, "Enter valid ID & Coins!", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-                val targetRef = dbRef.child("users").child(targetUid).child("coins")
-                targetRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snap: DataSnapshot) {
-                        val old = snap.getValue(Int::class.java) ?: 0
-                        val updated = (old + amount).coerceAtLeast(0)
-                        targetRef.setValue(updated)
-                        Toast.makeText(this@MainActivity, "✅ ID $targetUid updated to 🪙 $updated!", Toast.LENGTH_SHORT).show()
-                        etSendCoins.setText("")
-                    }
-                    override fun onCancelled(error: DatabaseError) {}
-                })
-            }
+            background = makeRoundedBg("#DC2626", 18f)
+            setPadding(32, 32, 32, 32)
+            setOnClickListener { showSimplePopup("🛡️ Super Admin", "Admin UID: $shortUid • UPI: $ADMIN_UPI_ID") }
         }
-        layoutSuperAdmin.addView(etTargetUid)
-        layoutSuperAdmin.addView(etSendCoins)
-        layoutSuperAdmin.addView(btnSend)
+        layoutSuperAdmin.addView(btnAdmin)
         box.addView(layoutSuperAdmin)
-
-        box.addView(Button(this).apply {
-            text = "🔄 Switch Account / Logout"
-            setTextColor(Color.WHITE)
-            background = makeRoundedBg("#DC2626", 14f)
-            setTypeface(null, Typeface.BOLD)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 120).apply { topMargin = 28 }
-            setOnClickListener {
-                prefs.edit().clear().apply()
-                startActivity(Intent(this@MainActivity, LoginActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                })
-                finish()
-            }
-        })
 
         scroll.addView(box)
         return scroll
         }
-            private fun showWalletRechargeDialog() {
-        val box = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#180A2E"))
-            setPadding(36, 36, 36, 36)
-        }
-        box.addView(TextView(this).apply {
-            text = "👛 OFFICIAL 2X COIN WALLET\nBalance: 🪙 $currentCoins  \vert{}  ID:$shortUid"
-            setTextColor(Color.parseColor("#FFD700"))
-            textSize = 16f
-            setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, 22)
-        })
-
-        val packs = listOf(
-            Triple("🪙 10,00,000 Coins (2X Offer)", "₹99", 99),
-            Triple("🪙 60,00,000 Coins + SVIP 3", "₹499", 499),
-            Triple("🪙 1,50,00,000 Coins + SVIP 7", "₹999", 999)
-        )
-        packs.forEach { (title, price, amt) ->
-            val row = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                background = makeRoundedBg("#2E1A47", 14f, "#FFD700", 2)
-                setPadding(22, 20, 22, 20)
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 14 }
-            }
-            row.addView(TextView(this).apply {
-                text = title
-                setTextColor(Color.WHITE)
-                textSize = 13f
-                setTypeface(null, Typeface.BOLD)
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            })
-            row.addView(Button(this).apply {
-                text = "Buy $price"
-                setTextColor(Color.parseColor("#180A2E"))
-                background = makeRoundedBg("#FFD700", 12f)
-                setTypeface(null, Typeface.BOLD)
-                setOnClickListener {
-                    try {
-                        val uri = Uri.parse("upi://pay?pa=$ADMIN_UPI_ID&pn=GupShupPro&am=$amt&cu=INR&tn=ID_$shortUid")
-                        startActivity(Intent(Intent.ACTION_VIEW, uri))
-                    } catch (e: Exception) {
-                        Toast.makeText(this@MainActivity, "Send $price to UPI: $ADMIN_UPI_ID with ID$shortUid", Toast.LENGTH_LONG).show()
-                    }
-                }
-            })
-            box.addView(row)
-        }
-        AlertDialog.Builder(this).setView(box).setPositiveButton("CLOSE", null).show()
-    }
-
-    private fun switchMainSection(section: Int) {
-        pageMeHome.visibility = if (section == 0) View.VISIBLE else View.GONE
-        pagePopularHome.visibility = if (section == 1) View.VISIBLE else View.GONE
-        pageGamesHub.visibility = if (section == 2) View.VISIBLE else View.GONE
-        pageMessages.visibility = if (section == 3) View.VISIBLE else View.GONE
-        pageProfileMe.visibility = if (section == 4) View.VISIBLE else View.GONE
-
-        topBarHeader.visibility = if (section == 0 || section == 1) View.VISIBLE else View.GONE
-
-        tvTopMe.setTextColor(if (section == 0) Color.parseColor("#1A1D26") else Color.parseColor("#8E96AA"))
-        indTopMe.visibility = if (section == 0) View.VISIBLE else View.INVISIBLE
-        tvTopPopular.setTextColor(if (section == 1) Color.parseColor("#1A1D26") else Color.parseColor("#8E96AA"))
-        indTopPopular.visibility = if (section == 1) View.VISIBLE else View.INVISIBLE
-
-        val activeBottom = when (section) {
-            0, 1 -> 0
-            2 -> 1
-            3 -> 2
-            else -> 3
-        }
-        bottomNavItems.forEachIndexed { idx, tv ->
-            tv.setTextColor(if (idx == activeBottom) Color.parseColor("#00C49A") else Color.parseColor("#8E96AA"))
-        }
-    }
-
-    private fun loadRoomsData() {
+            private fun loadRoomsData() {
         dbRef.child("rooms").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                data class RoomModel(val id: String, val title: String, val host: String, val avatar: String, val gender: String, val count: Int, val tag: String, val c1: String, val c2: String)
-                val rooms = mutableListOf<RoomModel>()
-                for (snap in snapshot.children) {
-                    val rId = snap.key ?: continue
-                    val title = snap.child("title").getValue(String::class.java) ?: "Royal Voice Party"
-                    val host = snap.child("host").getValue(String::class.java) ?: "VIP Host"
-                    rooms.add(RoomModel(rId, title, host, "👑", "♂", Random.nextInt(6, 35), "New", "#3B1E54", "#6D28D9"))
+                popularRoomsGrid.removeAllViews()
+                meRoomsGrid.removeAllViews()
+                var count = 0
+                for (roomSnap in snapshot.children) {
+                    val rId = roomSnap.key ?: continue
+                    val rName = roomSnap.child("name").getValue(String::class.java) ?: "Royal Party Room #$rId"
+                    val rHost = roomSnap.child("hostName").getValue(String::class.java) ?: "Royal Host"
+                    val rOnline = roomSnap.child("onlineCount").getValue(Int::class.java) ?: Random.nextInt(12, 85)
+                    addRoomCardToGrid(popularRoomsGrid, rId, rName, rHost, rOnline)
+                    if (count < 3) addRoomCardToGrid(meRoomsGrid, rId, rName, rHost, rOnline)
+                    count++
                 }
-                rooms.add(RoomModel("100101", "i love moha...", "🔥 Dimple 💔", "👩‍🎤", "♀", 13, "SVIP
-                                   5", "#831843", "#DB2777"))
-                rooms.add(RoomModel("100102", "HAZA OFFICIAL RO...", "THALAPATI", "🦁", "♂", 16, "SVIP 3", "#064E3B", "#059669"))
-                rooms.add(RoomModel("100103", "welcome dosto", "surya bisht uk", "😎", "♂", 24, "Lv.34", "#1E3A8A", "#2563EB"))
-                rooms.add(RoomModel("100104", "Queen", "Aayat 👑", "👸", "♀", 19, "New", "#4C1D95", "#9333EA"))
-
-                populate2ColumnGrid(popularRoomsGrid, rooms.map { Triple(it.id, "${it.gender} ${it.title}", "🇮🇳 ${it.host}") }, rooms.map { Triple(it.avatar, "📶 ${it.count} • ${it.tag}", Pair(it.c1, it.c2)) })
-                populate2ColumnGrid(meRoomsGrid, rooms.take(4).map { Triple(it.id, "${it.gender} ${it.title}", "🇮🇳 ${it.host}") }, rooms.take(4).map { Triple(it.avatar, "📶 ${it.count}", Pair(it.c1, it.c2)) })
+                if (count == 0) {
+                    addRoomCardToGrid(popularRoomsGrid, "100101", "👑♡♡$userName♡♡👑", userName, 48)
+                    addRoomCardToGrid(popularRoomsGrid, "100102", "🔥 Dil Se Dosti & Music Party", "Aarav_VIP", 92)
+                    addRoomCardToGrid(popularRoomsGrid, "100103", "💎 Royal Shayari & Late Night", "Zoya_Queen", 64)
+                    addRoomCardToGrid(meRoomsGrid, "100101", "👑♡♡$userName♡♡👑", userName, 48)
+                }
             }
             override fun onCancelled(error: DatabaseError) {}
         })
     }
 
-    private fun populate2ColumnGrid(grid: LinearLayout, infoList: List<Triple<String, String, String>>, styleList: List<Triple<String, String, Pair<String, String>>>) {
-        grid.removeAllViews()
-        var i = 0
-        while (i < infoList.size) {
-            val row = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 22 }
-            }
-            row.addView(buildRoomCard(infoList[i], styleList[i], true))
-            if (i + 1 < infoList.size) {
-                row.addView(buildRoomCard(infoList[i + 1], styleList[i + 1], false))
-            } else {
-                row.addView(View(this).apply { layoutParams = LinearLayout.LayoutParams(0, 1, 1f) })
-            }
-            grid.addView(row)
-            i += 2
+    private fun addRoomCardToGrid(container: LinearLayout, roomId: String, roomName: String, hostName: String, onlineCount: Int) {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            background = makeRoundedBg("#FFFFFF", 20f)
+            setPadding(28, 28, 28, 28)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 16 }
+            setOnClickListener { openRoom(roomId, roomId == "100101") }
         }
-    }
 
-    private fun buildRoomCard(info: Triple<String, String, String>, style: Triple<String, String, Pair<String, String>>, isLeft: Boolean): LinearLayout {
-        val (roomId, title, host) = info
-        val (avatar, badge, colors) = style
-        return LinearLayout(this).apply {
+        val avatar = TextView(this).apply {
+            text = "🎙️"
+            textSize = 26f
+            gravity = Gravity.CENTER
+            background = makeGradientBg("#6366F1", "#EC4899", 16f)
+            layoutParams = LinearLayout.LayoutParams(120, 120).apply { rightMargin = 24 }
+        }
+
+        val info = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                if (isLeft) rightMargin = 12 else leftMargin = 12
-            }
-            setOnClickListener { openRoom(roomId, false) }
-
-            val cover = LinearLayout(this@MainActivity).apply {
-                orientation = LinearLayout.VERTICAL
-                background = makeGradientBg(colors.first, colors.second, 18f)
-                setPadding(18, 16, 18, 16)
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 360)
-            }
-            cover.addView(TextView(this@MainActivity).apply {
-                text = badge
-                setTextColor(Color.WHITE)
-                background = makeRoundedBg("#66000000", 12f)
-                textSize = 11f
-                setTypeface(null, Typeface.BOLD)
-                setPadding(12, 4, 12, 4)
-            })
-            cover.addView(TextView(this@MainActivity).apply {
-                text = avatar
-                textSize = 52f
-                gravity = Gravity.CENTER
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
-            })
-            cover.addView(TextView(this@MainActivity).apply {
-                text = title
-                setTextColor(Color.WHITE)
-                textSize = 13f
-                maxLines = 1
-                setTypeface(null, Typeface.BOLD)
-            })
-            addView(cover)
-
-            addView(TextView(this@MainActivity).apply {
-                text = host
-                setTextColor(Color.parseColor("#1A1D26"))
-                textSize = 13f
-                maxLines = 1
-                setTypeface(null, Typeface.BOLD)
-                setPadding(6, 10, 6, 0)
-            })
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
-    }
-        private fun showWealthPodiumDialog() {
-        val box = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#23120B"))
-            setPadding(36, 36, 36, 36)
-        }
-        box.addView(TextView(this).apply {
-            text = "🏆 WEALTH & CHARM 2X PODIUM 🏆\nLeft time: 01:19:33:58"
-            setTextColor(Color.parseColor("#FFD700"))
+        info.addView(TextView(this).apply {
+            text = roomName
             textSize = 16f
             setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, 24)
+            setTextColor(Color.parseColor("#1A1D26"))
         })
-        val ranks = listOf(
-            "🥇 #1  👑♡♡$userName♡♡👑  (Lv.62)  —  🪙 $currentCoins",
-            "🥈 #2  🔥 Dimple 💔  (Lv.54)  —  🪙 2,62,800",
-            "🥉 #3  🦁 THALAPATI  (Lv.49)  —  🪙 1,97,000"
-        )
-        ranks.forEach { r ->
-            box.addView(TextView(this).apply {
-                text = r
-                setTextColor(Color.WHITE)
-                background = makeRoundedBg("#3B2114", 14f, "#FFD700", 2)
-                textSize = 13f
-                setTypeface(null, Typeface.BOLD)
-                setPadding(24, 20, 24, 20)
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 14 }
-            })
+        info.addView(TextView(this).apply {
+            text = "Host: $hostName  •  ID: $roomId"
+            textSize = 12f
+            setTextColor(Color.parseColor("#6B7280"))
+            setPadding(0, 6, 0, 0)
+        })
+
+        val badge = TextView(this).apply {
+            text = "🔊 $onlineCount"
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#059669"))
+            background = makeRoundedBg("#D1FAE5", 12f)
+            setPadding(18, 10, 18, 10)
         }
-        AlertDialog.Builder(this).setView(box).setPositiveButton("CLOSE ✨", null).show()
+
+        card.addView(avatar)
+        card.addView(info)
+        card.addView(badge)
+        container.addView(card)
     }
 
-    private fun showSearchRoomDialog() {
-        val et = EditText(this).apply { hint = "Enter 6-digit Room ID (e.g. 100101)" }
+    private fun showCreateRoomDialog() {
+        val etName = EditText(this).apply {
+            hint = "Enter Royal Room Name"
+            setText("👑 $userName's Party")
+            setPadding(36, 28, 36, 28)
+        }
         AlertDialog.Builder(this)
-            .setTitle("🔍 Join Voice Room by ID")
-            .setView(et)
-            .setPositiveButton("Join Room ➔") { _, _ ->
-                val id = et.text.toString().trim()
-                if (id.length >= 4) openRoom(id, false)
-                else Toast.makeText(this, "Enter valid Room ID!", Toast.LENGTH_SHORT).show()
+            .setTitle("🏠 Create Royal Voice Room")
+            .setView(etName)
+            .setPositiveButton("Create & Enter") { _, _ ->
+                val rName = etName.text.toString().trim().ifEmpty { "👑 $userName's Party" }
+                val newRoomId = (100200 + Random.nextInt(800)).toString()
+                val roomData = mapOf("name" to rName, "hostName" to userName, "hostUid" to shortUid, "onlineCount" to 1)
+                dbRef.child("rooms").child(newRoomId).setValue(roomData)
+                openRoom(newRoomId, true)
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun showCreateRoomDialog() {
-        val layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(48, 24, 48, 12) }
-        val etTitle = EditText(this).apply { hint = "Room Name"; setText("$userName's Royal Room") }
-        layout.addView(etTitle)
+    private fun showSearchRoomDialog() {
+        val etId = EditText(this).apply {
+            hint = "Enter Room ID (e.g. 100101)"
+            setPadding(36, 28, 36, 28)
+        }
         AlertDialog.Builder(this)
-            .setTitle("🎙️ Create Live Voice Room")
-            .setView(layout)
-            .setPositiveButton("Go Live") { _, _ ->
-                val newId = Random.nextInt(100000, 999999).toString()
-                val title = etTitle.text.toString().trim().ifEmpty { "$userName's Party" }
-                dbRef.child("rooms").child(newId).setValue(mapOf("title" to title, "host" to userName, "hostUid" to shortUid))
-                openRoom(newId, true)
+            .setTitle("🔍 Search Room by ID")
+            .setView(etId)
+            .setPositiveButton("Join Room") { _, _ ->
+                val rId = etId.text.toString().trim()
+                if (rId.isNotEmpty()) openRoom(rId, rId == "100101")
             }
             .setNegativeButton("Cancel", null)
+            .show()
+    }
+        private fun showWealthPodiumDialog() {
+        val msg = """
+            🥇 1st: 👑♡♡$userName♡♡👑 — 98,50,000 Wealth
+            🥈 2nd: 💎 Zoya_Queen — 74,20,000 Wealth
+            🥉 3rd: 🔥 Aarav_VIP — 61,80,000 Wealth
+            4️⃣ Royal_Prince — 45,10,000 Wealth
+            5️⃣ Dil_Se_King — 38,90,000 Wealth
+        """.trimIndent()
+        showSimplePopup("🏆 Weekly Wealth & Charm Podium", msg)
+    }
+
+    private fun showVipRechargeDialog() {
+        val packs = arrayOf(
+            "🪙 1,00,000 Gold Coins — ₹99",
+            "💎 5,50,000 Gold Coins + VIP1 — ₹499",
+            "👑 15,00,000 Gold Coins + Royal VIP — ₹999"
+        )
+        AlertDialog.Builder(this)
+            .setTitle("💎 Royal Coin & VIP Store")
+            .setItems(packs) { _, which ->
+                val amount = when (which) { 0 -> "99"; 1 -> "499"; else -> "999" }
+                val upiUri = Uri.parse("upi://pay?pa=$ADMIN_UPI_ID&pn=GupShupPro&am=$amount&cu=INR")
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, upiUri))
+                } catch (e: Exception) {
+                    showSimplePopup("💳 UPI Payment", "Send ₹$amount to UPI ID:\n$ADMIN_UPI_ID")
+                }
+            }
+            .setNegativeButton("Close", null)
             .show()
     }
 
     private fun showEditProfileDialog() {
-        val layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(48, 24, 48, 12) }
-        val etName = EditText(this).apply { hint = "Display Name"; setText(userName) }
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 12)
+        }
+        val etName = EditText(this).apply { hint = "Nickname"; setText(userName) }
         val etBio = EditText(this).apply { hint = "Bio"; setText(userBio) }
         val etAvatar = EditText(this).apply { hint = "Avatar Emoji"; setText(userAvatar) }
-        val rg = RadioGroup(this).apply { orientation = RadioGroup.HORIZONTAL }
-        val rbM = RadioButton(this).apply { text = "♂️ Male"; id = View.generateViewId() }
-        val rbF = RadioButton(this).apply { text = "♀️ Female"; id = View.generateViewId() }
+        val rg = RadioGroup(this).apply { orientation = LinearLayout.HORIZONTAL }
+        val rbM = RadioButton(this).apply { text = "♂️ Male"; id = View.generateViewId(); isChecked = userGender != "Female" }
+        val rbF = RadioButton(this).apply { text = "♀️ Female"; id = View.generateViewId(); isChecked = userGender == "Female" }
         rg.addView(rbM); rg.addView(rbF)
-        if (userGender == "Female") rbF.isChecked = true else rbM.isChecked = true
         layout.addView(etName); layout.addView(etBio); layout.addView(etAvatar); layout.addView(rg)
         AlertDialog.Builder(this)
             .setTitle("✏️ Edit VIP Profile")
@@ -986,7 +732,7 @@ class MainActivity : AppCompatActivity() {
                 userAvatar = etAvatar.text.toString().trim().ifEmpty { "👑" }
                 userGender = if (rbF.isChecked) "Female" else "Male"
                 prefs.edit().putString("user_name", userName).putString("user_bio", userBio).putString("user_avatar", userAvatar).putString("user_gender", userGender).apply()
-                dbRef.child("users").child(shortUid).updateChildren(mapOf("name" to userName, "bio" to userBio, "avatar" to userAvatar, "gender" to userGender))
+                dbRef.child("users").child(shortUid).updateChildren(mapOf("name" to userName, "bio" to userBio, "avatar" to userAvatar))
                 refreshProfileViews()
                 Toast.makeText(this, "✅ Profile Saved!", Toast.LENGTH_SHORT).show()
             }
@@ -997,7 +743,7 @@ class MainActivity : AppCompatActivity() {
     private fun claimDaily200kCoins() {
         val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
         if (prefs.getString("last_daily_claim", "") == today) {
-            Toast.makeText(this, "🎁 Already claimed today! Come back tomorrow ✨", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "⏳ Already claimed today! Come back tomorrow ✨", Toast.LENGTH_LONG).show()
             return
         }
         currentCoins += 200000
@@ -1005,7 +751,7 @@ class MainActivity : AppCompatActivity() {
         prefs.edit().putString("last_daily_claim", today).putInt("user_coins", currentCoins).putInt("user_xp", currentXp).apply()
         dbRef.child("users").child(shortUid).updateChildren(mapOf("coins" to currentCoins, "xp" to currentXp))
         refreshProfileViews()
-        showSimplePopup("🎉 2X DAILY BONUS CLAIMED!", "Received 🪙 2,00,000 Coins + ⚡ 1,00,000 EXP!\n\nNew Balance: 🪙 $currentCoins")
+        showSimplePopup("🎁 2X DAILY BONUS CLAIMED!", "Received 🪙 2,00,000 Coins + ⚡ 1,00,000 EXP!\n\nNew Balance: 🪙 $currentCoins")
     }
 
     private fun syncFirebaseUser() {
@@ -1055,5 +801,4 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 101)
         }
     }
-                          }
-                          
+}
