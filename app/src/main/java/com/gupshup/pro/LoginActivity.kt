@@ -30,10 +30,10 @@ class LoginActivity : AppCompatActivity() {
                 val rawName = email.substringBefore("@").replace(".", " ").replace("_", " ")
                 val displayName = rawName.split(" ").joinToString(" ") { word ->
                     word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-                }.ifEmpty { "Royal User" }
+                }.ifEmpty { "Royal Star" }
 
                 val googleKey = email.replace(Regex("[^a-zA-Z0-9]"), "_")
-                tvLoginStatus.text = "✅ Welcome $displayName! Setting up Royal ID..."
+                tvLoginStatus.text = "✨ Welcome $displayName! Crediting 2,00,000 Coins..."
                 setupUserAndGoHome(googleKey, displayName, email)
             } else {
                 tvLoginStatus.text = "कृपया एक Google Account चुनें"
@@ -75,74 +75,91 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupUserAndGoHome(googleKey: String, name: String, email: String) {
+    private fun setupUserAndGoHome(googleKey: String, defaultName: String, email: String) {
         val dbRef = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
-        val mappingRef = dbRef.child("google_uid_map").child(googleKey)
-        val isSuperAdmin = email.equals(OWNER_EMAIL, ignoreCase = true)
+        val isOwner = email.equals(OWNER_EMAIL, ignoreCase = true)
 
-        mappingRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val existingShortUid = snapshot.getValue(String::class.java)
-                if (existingShortUid != null) {
-                    dbRef.child("users").child(existingShortUid)
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(userSnap: DataSnapshot) {
-                                val coins = userSnap.child("coins").getValue(Int::class.java)
-                                    ?: if (isSuperAdmin) 999999 else 50000
-                                saveLocalAndOpen(existingShortUid, name, email, coins, isSuperAdmin, false)
-                            }
-                            override fun onCancelled(error: DatabaseError) {
-                                saveLocalAndOpen(existingShortUid, name, email, if (isSuperAdmin) 999999 else 50000, isSuperAdmin, false)
-                            }
-                        })
-                } else {
-                    val newShortUid = Random.nextInt(100000, 999999).toString()
-                    val initialCoins = if (isSuperAdmin) 999999 else 50000
+        dbRef.child("google_links").child(googleKey)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val existingUid = snapshot.getValue(String::class.java)
+                    if (existingUid != null) {
+                        dbRef.child("users").child(existingUid)
+                            .addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(userSnap: DataSnapshot) {
+                                    val name = userSnap.child("name").getValue(String::class.java) ?: defaultName
+                                    val bio = userSnap.child("bio").getValue(String::class.java) ?: "Welcome to GupShup Pro! 👑✨"
+                                    val gender = userSnap.child("gender").getValue(String::class.java) ?: "Male"
+                                    val avatar = userSnap.child("avatar").getValue(String::class.java) ?: "👑"
+                                    val coins = userSnap.child("coins").getValue(Int::class.java) ?: if (isOwner) 9999999 else 200000
 
-                    mappingRef.setValue(newShortUid)
-                    val userMap = mapOf(
-                        "uid" to newShortUid,
-                        "name" to name,
-                        "email" to email,
-                        "coins" to initialCoins,
-                        "isSuperAdmin" to isSuperAdmin
-                    )
-                    dbRef.child("users").child(newShortUid).setValue(userMap)
-                    saveLocalAndOpen(newShortUid, name, email, initialCoins, isSuperAdmin, true)
+                                    if (isOwner) {
+                                        dbRef.child("users").child(existingUid).child("isSuperAdmin").setValue(true)
+                                    }
+
+                                    saveLocalAndGo(existingUid, name, bio, gender, avatar, coins, isOwner)
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    saveLocalAndGo(existingUid, defaultName, "Welcome to GupShup Pro! 👑", "Male", "👑", if (isOwner) 9999999 else 200000, isOwner)
+                                }
+                            })
+                    } else {
+                        val newShortUid = if (isOwner) "100001" else Random.nextInt(100002, 999999).toString()
+                        val startCoins = if (isOwner) 9999999 else 200000
+                        val startAvatar = if (isOwner) "👑" else "🦁"
+                        val startBio = if (isOwner) "Founder & Super Admin 👑" else "Royal VIP Member ✨"
+
+                        val userMap = mapOf(
+                            "uid" to newShortUid,
+                            "name" to defaultName,
+                            "email" to email,
+                            "bio" to startBio,
+                            "gender" to "Male",
+                            "avatar" to startAvatar,
+                            "coins" to startCoins,
+                            "isSuperAdmin" to isOwner
+                        )
+
+                        dbRef.child("google_links").child(googleKey).setValue(newShortUid)
+                        dbRef.child("users").child(newShortUid).setValue(userMap)
+
+                        saveLocalAndGo(newShortUid, defaultName, startBio, "Male", startAvatar, startCoins, isOwner)
+                    }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                val fallbackUid = Random.nextInt(100000, 999999).toString()
-                saveLocalAndOpen(fallbackUid, name, email, if (isSuperAdmin) 999999 else 50000, isSuperAdmin, true)
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    val fallbackUid = if (isOwner) "100001" else Random.nextInt(100002, 999999).toString()
+                    saveLocalAndGo(fallbackUid, defaultName, "Royal VIP Member ✨", "Male", "👑", if (isOwner) 9999999 else 200000, isOwner)
+                }
+            })
     }
 
-    private fun saveLocalAndOpen(
-        shortUid: String,
+    private fun saveLocalAndGo(
+        uid: String,
         name: String,
-        email: String,
+        bio: String,
+        gender: String,
+        avatar: String,
         coins: Int,
-        isSuperAdmin: Boolean,
-        isNewUser: Boolean
+        isAdmin: Boolean
     ) {
-        getSharedPreferences("GupShupPrefs", MODE_PRIVATE).edit()
-            .putString("user_uid", shortUid)
+        val prefs = getSharedPreferences("GupShupPrefs", MODE_PRIVATE)
+        prefs.edit()
+            .putString("user_uid", uid)
             .putString("user_name", name)
-            .putString("user_email", email)
+            .putString("user_bio", bio)
+            .putString("user_gender", gender)
+            .putString("user_avatar", avatar)
             .putInt("user_coins", coins)
-            .putBoolean("is_super_admin", isSuperAdmin)
-            .putBoolean("show_welcome_popup", isNewUser)
+            .putBoolean("is_super_admin", isAdmin)
             .apply()
 
         goToMain()
     }
 
     private fun goToMain() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 }
