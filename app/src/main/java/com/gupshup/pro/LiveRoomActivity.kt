@@ -291,7 +291,8 @@ class LiveRoomActivity : AppCompatActivity() {
                 appID = ZEGO_APP_ID
                 appSign = ZEGO_APP_SIGN
                 scenario = ZegoScenario.GENERAL
-                application = applicationContext
+                application = this@LiveRoomActivity.application
+                
             }
             zegoEngine = ZegoExpressEngine.createEngine(profile, null)
             zegoEngine?.loginRoom(roomId, ZegoUser(shortUid, userName), ZegoRoomConfig())
