@@ -927,7 +927,7 @@ class MainActivity : AppCompatActivity() {
         prefs.edit().putInt("user_coins", currentCoins).putInt("user_xp", currentXp).apply()
         tvProfileCoins.text = "🪙 $currentCoins Coins  -  ⚡ $currentXp XP"
         syncFirebaseUser()
-    }
+    
 
     private fun syncFirebaseUser() {
         val data = mapOf("uid" to shortUid, "name" to userName, "coins" to currentCoins, "xp" to currentXp, "gender" to userGender)
