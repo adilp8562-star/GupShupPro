@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -39,11 +40,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvUserBioMe: TextView
     private lateinit var tvUserAvatarMe: TextView
     private lateinit var tvUserUidMe: TextView
+    private lateinit var layoutSuperAdmin: LinearLayout
     private lateinit var liveRoomsContainer: LinearLayout
 
     private lateinit var tabParty: View
     private lateinit var tabGames: View
-    private lateinit var tabMe: View
+    private lateinit var tabMe: ScrollView
     private lateinit var navParty: TextView
     private lateinit var navGames: TextView
     private lateinit var navMe: TextView
@@ -71,14 +73,10 @@ class MainActivity : AppCompatActivity() {
         currentCoins = prefs.getInt("user_coins", 200000)
         isSuperAdmin = prefs.getBoolean("is_super_admin", false)
 
-        tvCoinsTop = findViewById(R.id.tvCoinsTop)
-        tvCoinsMe = findViewById(R.id.tvCoinsMe)
-        tvUserNameMe = findViewById(R.id.tvUserNameMe)
-        tvUserBioMe = findViewById(R.id.tvUserBioMe)
-        tvUserAvatarMe = findViewById(R.id.tvUserAvatarMe)
-        tvUserUidMe = findViewById(R.id.tvUserUidMe)
-        liveRoomsContainer = findViewById(R.id.liveRoomsContainer)
+        val dbRef = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
 
+        tvCoinsTop = findViewById(R.id.tvCoinsTop)
+        liveRoomsContainer = findViewById(R.id.liveRoomsContainer)
         tabParty = findViewById(R.id.tabParty)
         tabGames = findViewById(R.id.tabGames)
         tabMe = findViewById(R.id.tabMe)
@@ -86,9 +84,8 @@ class MainActivity : AppCompatActivity() {
         navGames = findViewById(R.id.navGames)
         navMe = findViewById(R.id.navMe)
 
+        buildBulletproofMeTab(dbRef, prefs)
         refreshProfileUI()
-
-        val dbRef = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
 
         dbRef.child("users").child(shortUid).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -103,10 +100,7 @@ class MainActivity : AppCompatActivity() {
                     userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: userAvatar
                     userGender = snapshot.child("gender").getValue(String::class.java) ?: userGender
                     isSuperAdmin = snapshot.child("isSuperAdmin").getValue(Boolean::class.java) ?: isSuperAdmin
-
-                    findViewById<View>(R.id.layoutSuperAdmin).visibility =
-                        if (isSuperAdmin) View.VISIBLE else View.GONE
-
+                    layoutSuperAdmin.visibility = if (isSuperAdmin) View.VISIBLE else View.GONE
                     refreshProfileUI()
                 }
             }
@@ -125,9 +119,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "🔍 Type 6-digit Room ID below to join!", Toast.LENGTH_SHORT).show()
         }
 
-        findViewById<View>(R.id.btnCreateRoom).setOnClickListener {
-            showCreateRoomDialog(dbRef)
-        }
+        findViewById<View>(R.id.btnCreateRoom).setOnClickListener { showCreateRoomDialog(dbRef) }
 
         findViewById<Button>(R.id.btnJoinRoom).setOnClickListener {
             val roomId = findViewById<EditText>(R.id.etRoomIdInput).text.toString().trim()
@@ -139,31 +131,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.bannerWeeklyStar).setOnClickListener {
-            showEventPopup(
-                "✨ WEEKLY STAR CARNIVAL ✨",
-                "🏆 #1 Royal Star: 5,00,000 Coins + Dragon Frame\n🥈 #2 Party Queen: 2,50,000 Coins + Crown\n🥉 #3 Rising Host: 1,00,000 Coins"
-            )
+            showEventPopup("✨ WEEKLY STAR CARNIVAL ✨", "🏆 #1 Royal Star: 5,00,000 Coins + Dragon Frame\n🥈 #2 Party Queen: 2,50,000 Coins + Crown\n🥉 #3 Rising Host: 1,00,000 Coins")
         }
 
         findViewById<View>(R.id.cardRanking).setOnClickListener {
-            showEventPopup(
-                "🏆 TOP ROYAL RANKING",
-                "1. 👑 $userName (ID: $shortUid) — 🪙 $currentCoins\n2. 🇮🇳 Mahi ✨ — 🪙 8,50,000\n3. 🇮🇳 THALAPATI — 🪙 6,20,000"
-            )
+            showEventPopup("🏆 TOP ROYAL RANKING", "1. 👑 $userName (ID: $shortUid) — 🪙 $currentCoins\n2. 🇮🇳 Mahi ✨ — 🪙 8,50,000\n3. 🇮🇳 THALAPATI — 🪙 6,20,000")
         }
 
         findViewById<View>(R.id.cardFamily).setOnClickListener {
-            showEventPopup(
-                "🏰 ROYAL FAMILY CLAN",
-                "Join or create your Royal Family!\n• Family Badge on profile\n• Weekly 10,00,000 Coin Family Treasury"
-            )
+            showEventPopup("🏰 ROYAL FAMILY CLAN", "Join or create your Royal Family!\n• Family Badge on profile\n• Weekly 10,00,000 Coin Family Treasury")
         }
 
         findViewById<View>(R.id.cardCp).setOnClickListener {
-            showEventPopup(
-                "💑 ROYAL CP (COUPLE SPACE)",
-                "Send a Royal Diamond Ring inside any Voice Room to unlock Golden Heart CP Frame!"
-            )
+            showEventPopup("💑 ROYAL CP (COUPLE SPACE)", "Send a Royal Diamond Ring inside any Voice Room to unlock Golden Heart CP Frame!")
         }
 
         findViewById<View>(R.id.cardDailyBonus).setOnClickListener { claimDaily100kCoins(dbRef) }
@@ -173,40 +153,153 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, GreedyGameActivity::class.java))
         }
 
-        findViewById<Button>(R.id.btnEditProfile).setOnClickListener {
-            showEditProfileDialog(dbRef)
-        }
-
-        findViewById<Button>(R.id.btnAdminSendCoins).setOnClickListener {
-            val targetUid = findViewById<EditText>(R.id.etTargetUid).text.toString().trim()
-            val amount = findViewById<EditText>(R.id.etSendCoins).text.toString().trim().toIntOrNull()
-            if (targetUid.isEmpty() || amount == null) {
-                Toast.makeText(this, "Enter valid User ID & Coin amount!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            val targetRef = dbRef.child("users").child(targetUid).child("coins")
-            targetRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snap: DataSnapshot) {
-                    val oldCoins = snap.getValue(Int::class.java) ?: 0
-                    val updated = (oldCoins + amount).coerceAtLeast(0)
-                    targetRef.setValue(updated)
-                    Toast.makeText(this@MainActivity, "✅ Updated ID $targetUid to 🪙 $updated!", Toast.LENGTH_SHORT).show()
-                    findViewById<EditText>(R.id.etSendCoins).setText("")
-                }
-
-                override fun onCancelled(error: DatabaseError) {}
-            })
-        }
-
-        findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            prefs.edit().clear().apply()
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }
-
         loadHaza2ColumnRooms(dbRef)
+    }
+
+    private fun buildBulletproofMeTab(dbRef: DatabaseReference, prefs: android.content.SharedPreferences) {
+        tabMe.removeAllViews()
+        tabMe.setBackgroundColor(Color.parseColor("#F5F7FA"))
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(36, 36, 36, 48)
+        }
+
+        val profileCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setBackgroundColor(Color.parseColor("#23123D"))
+            setPadding(44, 48, 44, 48)
+        }
+
+        tvUserAvatarMe = TextView(this).apply {
+            text = userAvatar
+            textSize = 52f
+            gravity = Gravity.CENTER
+            setBackgroundColor(Color.parseColor("#3D206B"))
+            layoutParams = LinearLayout.LayoutParams(190, 190)
+        }
+
+        tvUserNameMe = TextView(this).apply {
+            text = userName
+            setTextColor(Color.WHITE)
+            textSize = 22f
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            setPadding(0, 22, 0, 8)
+        }
+
+        tvUserUidMe = TextView(this).apply {
+            text = "ID: $shortUid • ROYAL VIP"
+            setTextColor(Color.parseColor("#FFD700"))
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+        }
+
+        tvUserBioMe = TextView(this).apply {
+            text = userBio
+            setTextColor(Color.parseColor("#D4C7EC"))
+            textSize = 13f
+            gravity = Gravity.CENTER
+            setPadding(0, 12, 0, 24)
+        }
+
+        tvCoinsMe = TextView(this).apply {
+            text = "🪙 $currentCoins"
+            setTextColor(Color.parseColor("#1A0B2E"))
+            setBackgroundColor(Color.parseColor("#FFD700"))
+            textSize = 17f
+            setTypeface(null, Typeface.BOLD)
+            setPadding(42, 16, 42, 16)
+        }
+
+        val btnEdit = Button(this).apply {
+            text = "✏️ Edit VIP Profile (Name / Avatar / Bio)"
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#8B5CF6"))
+            setTypeface(null, Typeface.BOLD)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 120).apply { topMargin = 32 }
+            setOnClickListener { showEditProfileDialog(dbRef) }
+        }
+
+        profileCard.addView(tvUserAvatarMe)
+        profileCard.addView(tvUserNameMe)
+        profileCard.addView(tvUserUidMe)
+        profileCard.addView(tvUserBioMe)
+        profileCard.addView(tvCoinsMe)
+        profileCard.addView(btnEdit)
+        container.addView(profileCard)
+
+        layoutSuperAdmin = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.parseColor("#FFF8E1"))
+            setPadding(36, 36, 36, 36)
+            visibility = if (isSuperAdmin) View.VISIBLE else View.GONE
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 32 }
+        }
+
+        val tvAdminTitle = TextView(this).apply {
+            text = "🛡️ SUPER ADMIN COIN CONTROL"
+            setTextColor(Color.parseColor("#B27800"))
+            textSize = 15f
+            setTypeface(null, Typeface.BOLD)
+        }
+        val etTargetUid = EditText(this).apply {
+            hint = "Enter User ID (e.g. 100001)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        }
+        val etSendCoins = EditText(this).apply {
+            hint = "Coins amount (e.g. 500000 or -50000)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_SIGNED
+        }
+        val btnSend = Button(this).apply {
+            text = "⚡ SEND / UPDATE USER COINS"
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#FF8F00"))
+            setTypeface(null, Typeface.BOLD)
+            setOnClickListener {
+                val targetUid = etTargetUid.text.toString().trim()
+                val amount = etSendCoins.text.toString().trim().toIntOrNull()
+                if (targetUid.isEmpty() || amount == null) {
+                    Toast.makeText(this@MainActivity, "Enter valid User ID & Coin amount!", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val targetRef = dbRef.child("users").child(targetUid).child("coins")
+                targetRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snap: DataSnapshot) {
+                        val oldCoins = snap.getValue(Int::class.java) ?: 0
+                        val updated = (oldCoins + amount).coerceAtLeast(0)
+                        targetRef.setValue(updated)
+                        Toast.makeText(this@MainActivity, "✅ Updated ID $targetUid to 🪙 $updated!", Toast.LENGTH_SHORT).show()
+                        etSendCoins.setText("")
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            }
+        }
+        layoutSuperAdmin.addView(tvAdminTitle)
+        layoutSuperAdmin.addView(etTargetUid)
+        layoutSuperAdmin.addView(etSendCoins)
+        layoutSuperAdmin.addView(btnSend)
+        container.addView(layoutSuperAdmin)
+
+        val btnLogout = Button(this).apply {
+            text = "🔄 Switch Google Account / Logout"
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#E53935"))
+            setTypeface(null, Typeface.BOLD)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 124).apply { topMargin = 36 }
+            setOnClickListener {
+                prefs.edit().clear().apply()
+                val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
+        }
+        container.addView(btnLogout)
+        tabMe.addView(container)
     }    private fun claimDaily100kCoins(dbRef: DatabaseReference) {
         val prefs = getSharedPreferences("GupShupPrefs", MODE_PRIVATE)
         val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
@@ -430,4 +523,3 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-    
