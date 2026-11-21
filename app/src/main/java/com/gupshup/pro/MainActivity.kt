@@ -928,7 +928,7 @@ class MainActivity : AppCompatActivity() {
         tvProfileCoins.text = "🪙 $currentCoins Coins  -  ⚡ $currentXp XP"
         syncFirebaseUser()
     
-
+    }
     private fun syncFirebaseUser() {
         val data = mapOf("uid" to shortUid, "name" to userName, "coins" to currentCoins, "xp" to currentXp, "gender" to userGender)
         dbRef.child("users").child(shortUid).updateChildren(data)
@@ -965,7 +965,7 @@ class MainActivity : AppCompatActivity() {
             }
             override fun onCancelled(error: DatabaseError) {}
         })
-    }
+    
 
     private fun requestAudioPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
