@@ -45,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("GupShupPrefs", Context.MODE_PRIVATE)
         if (prefs.getBoolean("is_logged_in", false)) {
-            goToMain()
+            
             return
         }
 
