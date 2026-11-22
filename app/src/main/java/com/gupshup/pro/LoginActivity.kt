@@ -153,20 +153,11 @@ class LoginActivity : AppCompatActivity() {
             .putInt("vip_level", vip)
             .apply()
 
-        try {
-            val db = FirebaseDatabase.getInstance(dbUrl).reference
-            db.child("users").child(safeKey).child("name").setValue(name)
-            db.child("users").child(safeKey).child("email").setValue(email)
-            db.child("users").child(safeKey).child("coins").setValue(coins)
-            db.child("users").child(safeKey).child("vipLevel").setValue(vip)
-        } catch (_: Exception) {
+        
+
         }
 
-        goToMain()
-    }
-
-    private fun goToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
-    }
+        
+    
+    
 }
