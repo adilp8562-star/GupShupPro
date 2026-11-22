@@ -81,7 +81,6 @@ class MainActivity : AppCompatActivity() {
             setPadding(24, 24, 24, 130)
         }
 
-        // Top Bar: Me | Popular | Royal GupShup | Coins
         val topBar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -128,7 +127,6 @@ class MainActivity : AppCompatActivity() {
         topBar.addView(tvCoins)
         mainCol.addView(topBar)
 
-        // Weekly Star Royal Banner
         val weeklyBanner = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
@@ -177,7 +175,6 @@ class MainActivity : AppCompatActivity() {
 
         mainCol.addView(weeklyBanner)
 
-        // Ranking / Family / CP Row
         val catRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             weightSum = 3f
@@ -225,7 +222,6 @@ class MainActivity : AppCompatActivity() {
         }
         mainCol.addView(catRow)
 
-        // Official Live Room (100001) Card
         val roomCard = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -273,7 +269,6 @@ class MainActivity : AppCompatActivity() {
         roomCard.addView(btnEnterRoom)
         mainCol.addView(roomCard)
 
-        // Girdy 30s Game Card
         val gameCard = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -320,7 +315,6 @@ class MainActivity : AppCompatActivity() {
         gameCard.addView(btnPlayGame)
         mainCol.addView(gameCard)
 
-        // Featured Royal Cards Grid
         val featuredGrid = GridLayout(this).apply {
             columnCount = 2
             layoutParams = LinearLayout.LayoutParams(
@@ -381,7 +375,6 @@ class MainActivity : AppCompatActivity() {
         }
         mainCol.addView(featuredGrid)
 
-        // Global Win Ticker (Firebase)
         tvGlobalPati = TextView(this).apply {
             text = "👑 Royal Mega Win Feed • Live on GupShup Pro"
             textSize = 13f
@@ -399,7 +392,6 @@ class MainActivity : AppCompatActivity() {
         scrollView.addView(mainCol)
         root.addView(scrollView)
 
-        // Bottom Navigation Bar
         val bottomBar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
@@ -428,7 +420,6 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(bottomBar)
 
-        // Backdrop & Right-Side 'My Page' Drawer
         drawerBackdrop = View(this).apply {
             setBackgroundColor(Color.parseColor("#80000000"))
             visibility = View.GONE
@@ -541,4 +532,14 @@ class MainActivity : AppCompatActivity() {
                     }
                     setOnClickListener { toggleMyPageDrawer(false) }
                 })
-        
+            }
+        }
+    }
+
+    private fun toggleMyPageDrawer(open: Boolean) {
+        drawerBackdrop.visibility = if (open) View.VISIBLE else View.GONE
+        myPageDrawer.visibility = if (open) View.VISIBLE else View.GONE
+    }
+
+    private fun listenGlobalWins() {
+        dbRef.child("global_wins").limitToLast(1).addChildEventListener(object : ChildEventListener 
