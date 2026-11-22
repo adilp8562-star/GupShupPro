@@ -1,259 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#12072B"
-    android:fillViewport="true">
+    android:background="#0B0719"
+    android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/greedyRootLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#1A103C"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="12dp">
+        android:padding="18dp">
 
-        <!-- Top Header: Back & Coins -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="#22104A"
-            android:padding="10dp">
-
-            <Button
-                android:id="@+id/btnBack"
-                android:layout_width="wrap_content"
-                android:layout_height="38dp"
-                android:text="⬅ Exit"
-                android:textColor="#FFFFFF"
-                android:backgroundTint="#3B1E7A" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="🍔 GREEDY 👑"
-                android:textColor="#FFD700"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvGreedyCoins"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🪙 5500"
-                android:textColor="#FFD700"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Round Timer & Status -->
         <TextView
-            android:id="@+id/tvTimerStatus"
+            android:id="@+id/tvGreedyTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="#2C1461"
             android:gravity="center"
-            android:padding="8dp"
-            android:text="⏳ Betting Time: 30s"
-            android:textColor="#00FFCC"
-            android:textSize="16sp"
+            android:paddingBottom="10dp"
+            android:text="👑 ROYAL 10-GREEDY ARENA"
+            android:textColor="#FFD700"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
-        <!-- Haza Style 3x3 Board (8 Boxes + Center Wheel) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/box0"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#2B1659"
-                android:text="🍔 5x\nBet: 0"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/box1"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#2B1659"
-                android:text="🍅 10x\nBet: 0"
-                android:textColor="#FFAB91"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/box2"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#2B1659"
-                android:text="🍕 5x\nBet: 0"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <Button
-                android:id="@+id/box7"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#2B1659"
-                android:text="👑 45x\nBet: 0"
-                android:textColor="#FFD700"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvCenterDisplay"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:background="#FF6F00"
-                android:gravity="center"
-                android:text="30s\nPLACE BET"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/box3"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#2B1659"
-                android:text="🌽 15x\nBet: 0"
-                android:textColor="#FFF59D"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/box6"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#2B1659"
-                android:text="🌭 5x\nBet: 0"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/box5"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#2B1659"
-                android:text="🥕 25x\nBet: 0"
-                android:textColor="#FFCC80"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/box4"
-                android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#2B1659"
-                android:text="🍗 5x\nBet: 0"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <!-- Chip Selection -->
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Select Chip &amp; Tap Any Food Box Above:"
-            android:textColor="#CCCCCC"
-            android:textSize="13sp" />
-
-        <LinearLayout
+            android:id="@+id/tvGreedyBalance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/chip100"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#FF9800"
-                android:text="🪙100"
-                android:textColor="#000000"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/chip500"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#321B6B"
-                android:text="🪙500"
-                android:textColor="#FFFFFF" />
-
-            <Button
-                android:id="@+id/chip1000"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#321B6B"
-                android:text="🪙1K"
-                android:textColor="#FFFFFF" />
-
-            <Button
-                android:id="@+id/chip5000"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:backgroundTint="#321B6B"
-                android:text="🪙5K"
-                android:textColor="#FFFFFF" />
-        </LinearLayout>
-
-        <!-- Result History Strip -->
-        <TextView
-            android:id="@+id/tvHistory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="#22104A"
-            android:padding="10dp"
-            android:text="Result: 🍔  🍕  🍅  🍗  👑  🥕"
-            android:textColor="#FFD700"
+            android:gravity="center"
+            android:paddingBottom="14dp"
+            android:text="🪙 Coins: 500000  •  ⚡ Lv.100 OWNER"
+            android:textColor="#00FFAA"
             android:textSize="14sp"
             android:textStyle="bold" />
 
+        <LinearLayout
+            android:id="@+id/greedySlotsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/btnGreedySpin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:backgroundTint="#FFD700"
+            android:padding="14dp"
+            android:text="⚡ SPIN ROYAL GREEDY"
+            android:textColor="#1A0B2E"
+            android:textStyle="bold" />
+
     </LinearLayout>
+
 </ScrollView>
