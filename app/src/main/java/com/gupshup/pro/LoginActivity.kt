@@ -1,6 +1,7 @@
 package com.gupshup.pro
 
 import android.accounts.AccountManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -8,248 +9,163 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import kotlin.random.Random
 
 class LoginActivity : AppCompatActivity() {
 
-    private val FIREBASE_DB_URL = "https://gupshuppro-9ab9e-default-rtdb.firebaseio.com"
-    private val OWNER_EMAIL = "adilp8562@gmail.com"
+    private val dbUrl = "https://gupshuppro-9ab9e-default-rtdb.firebaseio.com"
 
-    private val NEW_USER_COINS = 500000
-    private val NEW_USER_XP = 100000
-
-    private val accountPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK && result.data != null) {
-            val email = result.data?.getStringExtra(AccountManager.KEY_ACCOUNT_NAME) ?: ""
-            if (email.isNotEmpty()) {
-                val rawName = email.substringBefore("@").replace(".", " ").replace("_", " ")
-                val displayName = rawName.split(" ").joinToString(" ") { word ->
-                    word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-                }.ifEmpty { "Royal Star" }
-                val key = email.replace(Regex("[^a-zA-Z0-9]"), "_")
-                completeUserLogin(key, displayName, email)
+    private val googlePickerLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val email = result.data?.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).orEmpty()
+                if (email.isNotBlank()) {
+                    val rawName = email.substringBefore("@").replace(".", " ").replace("_", " ")
+                    val displayName = rawName.split(" ")
+                        .filter { it.isNotBlank() }
+                        .joinToString(" ") { w -> w.replaceFirstChar { it.uppercase() } }
+                        .ifBlank { "Its Meroyal" }
+                    saveAndEnter(displayName, email)
+                } else {
+                    showFallbackAccounts()
+                }
             } else {
-                Toast.makeText(this, "Please select a Google account", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Login cancelled", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(this, "Login Cancelled", Toast.LENGTH_SHORT).show()
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val prefs = getSharedPreferences("GupShupPrefs", MODE_PRIVATE)
+        val prefs = getSharedPreferences("GupShupPrefs", Context.MODE_PRIVATE)
         if (prefs.getBoolean("is_logged_in", false)) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            goToMain()
             return
         }
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(Color.parseColor("#1D0B38"), Color.parseColor("#3B1663"), Color.parseColor("#120724"))
-            )
-            setPadding(52, 48, 52, 48)
+            gravity = Gravity.CENTER
+            setPadding(28, 28, 28, 28)
+            setBackgroundColor(Color.parseColor("#0B0719"))
         }
 
-        val tvBadgeTop = TextView(this).apply {
-            text = "2X Double Coins & XP Edition 🔥"
-            setTextColor(Color.parseColor("#FFD700"))
-            textSize = 13f
-            setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.END
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        }
-        root.addView(tvBadgeTop)
-
-        val topSpace = LinearLayout(this).apply {
+        val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
-        }
-
-        val logoBox = TextView(this).apply {
-            text = "👑"
-            textSize = 56f
-            gravity = Gravity.CENTER
+            setPadding(24, 28, 24, 28)
             background = GradientDrawable().apply {
-                setColor(Color.WHITE)
-                cornerRadius = 26f * resources.displayMetrics.density
+                setColor(Color.parseColor("#1A103C"))
+                setStroke(3, Color.parseColor("#FFD700"))
+                cornerRadius = 24f
             }
-            layoutParams = LinearLayout.LayoutParams(210, 210)
+            layoutParams = LinearLayout.LayoutParams(-1, -2)
         }
 
-        val tvTitle = TextView(this).apply {
-            text = "GupShup Pro"
-            setTextColor(Color.WHITE)
-            textSize = 34f
+        card.addView(TextView(this).apply {
+            text = "👑 ROYAL VIP LOGIN"
+            textSize = 20f
             setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            setPadding(0, 24, 0, 8)
-        }
-
-        val tvBonus = TextView(this).apply {
-            text = "🎁 Join Now & Get 🪙 5,00,000 FREE Coins\n⚡ +1,00,000 Starter XP (2X Double Rewards!)"
             setTextColor(Color.parseColor("#FFD700"))
-            textSize = 14f
-            setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
-        }
+        })
 
-        topSpace.addView(logoBox)
-        topSpace.addView(tvTitle)
-        topSpace.addView(tvBonus)
-        root.addView(topSpace)
-
-        val badgeLastUsed = TextView(this).apply {
-            text = "  Last used  "
-            setTextColor(Color.WHITE)
-            textSize = 11f
-            setTypeface(null, Typeface.BOLD)
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#00C49A"))
-                cornerRadius = 12f * resources.displayMetrics.density
-            }
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                gravity = Gravity.END
-                bottomMargin = 8
-            }
-        }
-        root.addView(badgeLastUsed)
-
-        val btnGoogle = Button(this).apply {
-            text = "G    Sign in with Google"
-            setTextColor(Color.parseColor("#1A1D26"))
-            textSize = 16f
-            setTypeface(null, Typeface.BOLD)
-            isAllCaps = false
-            background = GradientDrawable().apply {
-                setColor(Color.WHITE)
-                cornerRadius = 30f * resources.displayMetrics.density
-            }
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 144).apply { bottomMargin = 26 }
-        }
-
-        val btnVipGuest = Button(this).apply {
-            text = "⚡   Instant VIP Guest Entry (5,00,000 Coins)"
-            setTextColor(Color.WHITE)
-            textSize = 15f
-            setTypeface(null, Typeface.BOLD)
-            isAllCaps = false
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#1877F2"))
-                cornerRadius = 30f * resources.displayMetrics.density
-            }
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 144).apply { bottomMargin = 28 }
-        }
-
-        val tvTerms = TextView(this).apply {
-            text = "Log In means you agree to the Terms of Service & Privacy Policy"
-            setTextColor(Color.parseColor("#C4B5FD"))
-            textSize = 11f
+        card.addView(TextView(this).apply {
+            text = "Select your Gmail account to enter"
+            textSize = 12f
+            setTextColor(Color.parseColor("#E0AAFF"))
             gravity = Gravity.CENTER
-        }
-
-        root.addView(btnGoogle)
-        root.addView(btnVipGuest)
-        root.addView(tvTerms)
-        setContentView(root)
-
-        btnGoogle.setOnClickListener {
-            try {
-                val intent = AccountManager.newChooseAccountIntent(
-                    null, null, arrayOf("com.google"), null, null, null, null
-                )
-                accountPickerLauncher.launch(intent)
-            } catch (e: Exception) {
-                Toast.makeText(this, "Account Picker Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        btnVipGuest.setOnClickListener {
-            val etName = EditText(this).apply {
-                hint = "Enter Your Royal Name"
-                setText("Its Meroyal")
-            }
-            AlertDialog.Builder(this)
-                .setTitle("👑 Instant VIP Entry (+5,00,000 Coins)")
-                .setView(etName)
-                .setPositiveButton("Enter Party ➔") { _, _ ->
-                    val name = etName.text.toString().trim().ifEmpty { "Royal Host" }
-                    completeUserLogin("guest_${System.currentTimeMillis()}", name, "")
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        }
-    }
-
-    private fun completeUserLogin(accountKey: String, displayName: String, email: String) {
-        val isOwner = email.equals(OWNER_EMAIL, ignoreCase = true)
-        if (isOwner) {
-            saveAndGoMain("100001", displayName, email, 99999999, 99999999, true)
-            return
-        }
-
-        val dbRef = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
-        dbRef.child("email_map").child(accountKey).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val existingUid = snapshot.getValue(String::class.java)
-                if (existingUid != null) {
-                    dbRef.child("users").child(existingUid).addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(userSnap: DataSnapshot) {
-                            val savedCoins = userSnap.child("coins").getValue(Int::class.java) ?: NEW_USER_COINS
-                            val savedXp = userSnap.child("xp").getValue(Int::class.java) ?: NEW_USER_XP
-                            val savedName = userSnap.child("name").getValue(String::class.java) ?: displayName
-                            saveAndGoMain(existingUid, savedName, email, savedCoins, savedXp, false)
-                        }
-                        override fun onCancelled(error: DatabaseError) {
-                            saveAndGoMain(existingUid, displayName, email, NEW_USER_COINS, NEW_USER_XP, false)
-                        }
-                    })
-                } else {
-                    val newUid = Random.nextInt(100002, 999999).toString()
-                    dbRef.child("email_map").child(accountKey).setValue(newUid)
-                    saveAndGoMain(newUid, displayName, email, NEW_USER_COINS, NEW_USER_XP, false)
-                }
-            }
-            override fun onCancelled(error: DatabaseError) {
-                saveAndGoMain(Random.nextInt(100002, 999999).toString(), displayName, email, NEW_USER_COINS, NEW_USER_XP, false)
+            layoutParams = LinearLayout.LayoutParams(-2, -2).apply {
+                topMargin = 8
+                bottomMargin = 20
             }
         })
+
+        card.addView(Button(this).apply {
+            text = "G  Continue with Google / Gmail"
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#1A0B2E"))
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#FFD700"))
+                cornerRadius = 16f
+            }
+            layoutParams = LinearLayout.LayoutParams(-1, -2)
+            setOnClickListener { openGoogleAccountPicker() }
+        })
+
+        root.addView(card)
+        setContentView(root)
     }
 
-    private fun saveAndGoMain(uid: String, name: String, email: String, coins: Int, xp: Int, isAdmin: Boolean) {
-        getSharedPreferences("GupShupPrefs", MODE_PRIVATE).edit()
+    private fun openGoogleAccountPicker() {
+        try {
+            val intent = AccountManager.newChooseAccountIntent(
+                null,
+                null,
+                arrayOf("com.google"),
+                null,
+                null,
+                null,
+                null
+            )
+            googlePickerLauncher.launch(intent)
+        } catch (_: Exception) {
+            showFallbackAccounts()
+        }
+    }
+
+    private fun showFallbackAccounts() {
+        val options = arrayOf(
+            "Its Meroyal (meroyal.vip@gmail.com)",
+            "Adil Pathan (adil.pathan.official@gmail.com)"
+        )
+        AlertDialog.Builder(this)
+            .setTitle("Choose Gmail Account")
+            .setItems(options) { _, which ->
+                val chosen = options[which]
+                val name = chosen.substringBefore(" (")
+                val email = chosen.substringAfter("(").substringBefore(")")
+                saveAndEnter(name, email)
+            }
+            .show()
+    }
+
+    private fun saveAndEnter(name: String, email: String) {
+        val safeKey = email.replace(Regex("[^A-Za-z0-9]"), "_")
+        val uid = "777777"
+        val coins = 500000
+        val vip = 100
+
+        getSharedPreferences("GupShupPrefs", Context.MODE_PRIVATE)
+            .edit()
             .putBoolean("is_logged_in", true)
-            .putString("user_uid", uid)
             .putString("user_name", name)
             .putString("user_email", email)
+            .putString("short_uid", uid)
             .putInt("user_coins", coins)
-            .putInt("user_xp", xp)
-            .putBoolean("is_super_admin", isAdmin)
+            .putInt("vip_level", vip)
             .apply()
 
-        FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference.child("users").child(uid).updateChildren(
-            mapOf("uid" to uid, "name" to name, "email" to email, "coins" to coins, "xp" to xp, "isSuperAdmin" to isAdmin)
-        )
+        try {
+            val db = FirebaseDatabase.getInstance(dbUrl).reference
+            db.child("users").child(safeKey).child("name").setValue(name)
+            db.child("users").child(safeKey).child("email").setValue(email)
+            db.child("users").child(safeKey).child("coins").setValue(coins)
+            db.child("users").child(safeKey).child("vipLevel").setValue(vip)
+        } catch (_: Exception) {
+        }
 
+        goToMain()
+    }
+
+    private fun goToMain() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
