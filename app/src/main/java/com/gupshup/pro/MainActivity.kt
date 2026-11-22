@@ -68,58 +68,51 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildUI() {
-        val root = FrameLayout(this).apply {
-            setBackgroundColor(Color.parseColor("#F7F1E5"))
-        }
+        val root = FrameLayout(this)
+        root.setBackgroundColor(Color.parseColor("#F7F1E5"))
 
-        val scrollView = ScrollView(this).apply {
-            isFillViewport = true
-        }
+        val scrollView = ScrollView(this)
+        scrollView.isFillViewport = true
 
-        val mainCol = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(24, 24, 24, 130)
-        }
+        val mainCol = LinearLayout(this)
+        mainCol.orientation = LinearLayout.VERTICAL
+        mainCol.setPadding(24, 24, 24, 130)
 
-        val topBar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(4, 6, 4, 18)
-        }
+        // Top Bar
+        val topBar = LinearLayout(this)
+        topBar.orientation = LinearLayout.HORIZONTAL
+        topBar.gravity = Gravity.CENTER_VERTICAL
+        topBar.setPadding(4, 6, 4, 18)
 
-        val tvMe = TextView(this).apply {
-            text = "Me"
-            textSize = 18f
-            setTextColor(Color.parseColor("#7A6A53"))
-            setPadding(0, 0, 20, 0)
-            setOnClickListener { toggleMyPageDrawer(true) }
-        }
+        val tvMe = TextView(this)
+        tvMe.text = "Me"
+        tvMe.textSize = 18f
+        tvMe.setTextColor(Color.parseColor("#7A6A53"))
+        tvMe.setPadding(0, 0, 20, 0)
+        tvMe.setOnClickListener { toggleMyPageDrawer(true) }
 
-        val tvPopular = TextView(this).apply {
-            text = "Popular"
-            textSize = 22f
-            setTypeface(typeface, Typeface.BOLD)
-            setTextColor(Color.parseColor("#2A2118"))
-            setPadding(0, 0, 16, 0)
-        }
+        val tvPopular = TextView(this)
+        tvPopular.text = "Popular"
+        tvPopular.textSize = 22f
+        tvPopular.setTypeface(tvPopular.typeface, Typeface.BOLD)
+        tvPopular.setTextColor(Color.parseColor("#2A2118"))
+        tvPopular.setPadding(0, 0, 16, 0)
 
-        val tvBrand = TextView(this).apply {
-            text = "Royal GupShup"
-            textSize = 19f
-            typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD_ITALIC)
-            setTextColor(Color.parseColor("#B8860B"))
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        }
+        val tvBrand = TextView(this)
+        tvBrand.text = "Royal GupShup"
+        tvBrand.textSize = 19f
+        tvBrand.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD_ITALIC)
+        tvBrand.setTextColor(Color.parseColor("#B8860B"))
+        tvBrand.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
 
-        tvCoins = TextView(this).apply {
-            text = "💰 $userCoins"
-            textSize = 13f
-            setTypeface(typeface, Typeface.BOLD)
-            setTextColor(Color.parseColor("#4A3515"))
-            setPadding(16, 8, 16, 8)
-            background = box("#FFF8E3", "#D4AF37", 3, 40f)
-            setOnClickListener { toggleMyPageDrawer(true) }
-        }
+        tvCoins = TextView(this)
+        tvCoins.text = "💰 $userCoins"
+        tvCoins.textSize = 13f
+        tvCoins.setTypeface(tvCoins.typeface, Typeface.BOLD)
+        tvCoins.setTextColor(Color.parseColor("#4A3515"))
+        tvCoins.setPadding(16, 8, 16, 8)
+        tvCoins.background = box("#FFF8E3", "#D4AF37", 3, 40f)
+        tvCoins.setOnClickListener { toggleMyPageDrawer(true) }
 
         topBar.addView(tvMe)
         topBar.addView(tvPopular)
@@ -127,304 +120,299 @@ class MainActivity : AppCompatActivity() {
         topBar.addView(tvCoins)
         mainCol.addView(topBar)
 
-        val weeklyBanner = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(24, 34, 24, 34)
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(
-                    Color.parseColor("#1D1712"),
-                    Color.parseColor("#3B2C18"),
-                    Color.parseColor("#1D1712")
-                )
-            ).apply {
-                cornerRadius = 26f
-                setStroke(4, Color.parseColor("#E5C158"))
-            }
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 20
-            }
+        // Weekly Star Banner
+        val weeklyBanner = LinearLayout(this)
+        weeklyBanner.orientation = LinearLayout.VERTICAL
+        weeklyBanner.gravity = Gravity.CENTER
+        weeklyBanner.setPadding(24, 34, 24, 34)
+        weeklyBanner.background = GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            intArrayOf(
+                Color.parseColor("#1D1712"),
+                Color.parseColor("#3B2C18"),
+                Color.parseColor("#1D1712")
+            )
+        ).apply {
+            cornerRadius = 26f
+            setStroke(4, Color.parseColor("#E5C158"))
         }
+        val bannerLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        bannerLp.bottomMargin = 20
+        weeklyBanner.layoutParams = bannerLp
 
-        weeklyBanner.addView(TextView(this).apply {
-            text = "✦ ROYAL CROWN EVENT ✦"
-            textSize = 11f
-            setTextColor(Color.parseColor("#F5D77F"))
-            gravity = Gravity.CENTER
-        })
+        val tvSub = TextView(this)
+        tvSub.text = "✦ ROYAL CROWN EVENT ✦"
+        tvSub.textSize = 11f
+        tvSub.setTextColor(Color.parseColor("#F5D77F"))
+        tvSub.gravity = Gravity.CENTER
 
-        weeklyBanner.addView(TextView(this).apply {
-            text = "Weekly Star"
-            textSize = 28f
-            typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
-            setTextColor(Color.parseColor("#FFD700"))
-            gravity = Gravity.CENTER
-            setPadding(0, 6, 0, 4)
-        })
+        val tvStar = TextView(this)
+        tvStar.text = "Weekly Star"
+        tvStar.textSize = 28f
+        tvStar.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
+        tvStar.setTextColor(Color.parseColor("#FFD700"))
+        tvStar.gravity = Gravity.CENTER
+        tvStar.setPadding(0, 6, 0, 4)
 
-        weeklyBanner.addView(TextView(this).apply {
-            text = "Gold & Ruby Hall of Fame"
-            textSize = 12f
-            setTextColor(Color.parseColor("#EAD699"))
-            gravity = Gravity.CENTER
-        })
+        val tvHall = TextView(this)
+        tvHall.text = "Gold & Ruby Hall of Fame"
+        tvHall.textSize = 12f
+        tvHall.setTextColor(Color.parseColor("#EAD699"))
+        tvHall.gravity = Gravity.CENTER
 
+        weeklyBanner.addView(tvSub)
+        weeklyBanner.addView(tvStar)
+        weeklyBanner.addView(tvHall)
         mainCol.addView(weeklyBanner)
 
-        val catRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            weightSum = 3f
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 20
-            }
-        }
+        // Ranking / Family / CP
+        val catRow = LinearLayout(this)
+        catRow.orientation = LinearLayout.HORIZONTAL
+        catRow.weightSum = 3f
+        val catLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        catLp.bottomMargin = 20
+        catRow.layoutParams = catLp
 
-        val catItems = listOf(
+        val cats = listOf(
             Triple("Ranking", "💎", "#FFF5E4"),
             Triple("Family", "👑", "#F9F1E3"),
             Triple("CP", "❤️", "#FFF2F0")
         )
 
-        catItems.forEachIndexed { i, (label, icon, bgColor) ->
-            val card = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER
-                setPadding(12, 16, 12, 16)
-                background = box(bgColor, "#D4AF37", 3, 20f)
-                layoutParams = LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f
-                ).apply {
-                    if (i < catItems.lastIndex) rightMargin = 12
-                }
-            }
-            card.addView(TextView(this).apply {
-                text = label
-                textSize = 14f
-                setTypeface(typeface, Typeface.BOLD)
-                setTextColor(Color.parseColor("#4A3515"))
-            })
-            card.addView(TextView(this).apply {
-                text = "$icon  ✦"
-                textSize = 17f
-                setTextColor(Color.parseColor("#9B1B30"))
-                setPadding(0, 6, 0, 0)
-            })
+        cats.forEachIndexed { idx, item ->
+            val card = LinearLayout(this)
+            card.orientation = LinearLayout.VERTICAL
+            card.gravity = Gravity.CENTER
+            card.setPadding(12, 16, 12, 16)
+            card.background = box(item.third, "#D4AF37", 3, 20f)
+            val cardLp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            if (idx < cats.lastIndex) cardLp.rightMargin = 12
+            card.layoutParams = cardLp
+
+            val t1 = TextView(this)
+            t1.text = item.first
+            t1.textSize = 14f
+            t1.setTypeface(t1.typeface, Typeface.BOLD)
+            t1.setTextColor(Color.parseColor("#4A3515"))
+
+            val t2 = TextView(this)
+            t2.text = "${item.second}  ✦"
+            t2.textSize = 17f
+            t2.setTextColor(Color.parseColor("#9B1B30"))
+            t2.setPadding(0, 6, 0, 0)
+
+            card.addView(t1)
+            card.addView(t2)
             catRow.addView(card)
         }
         mainCol.addView(catRow)
 
-        val roomCard = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(20, 18, 20, 18)
-            background = box("#FFFDF9", "#C59B27", 3, 22f)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 14
+        // Official Room 100001
+        val roomCard = LinearLayout(this)
+        roomCard.orientation = LinearLayout.HORIZONTAL
+        roomCard.gravity = Gravity.CENTER_VERTICAL
+        roomCard.setPadding(20, 18, 20, 18)
+        roomCard.background = box("#FFFDF9", "#C59B27", 3, 22f)
+        val roomLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        roomLp.bottomMargin = 14
+        roomCard.layoutParams = roomLp
+
+        val roomTextCol = LinearLayout(this)
+        roomTextCol.orientation = LinearLayout.VERTICAL
+        roomTextCol.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+
+        val rTitle = TextView(this)
+        rTitle.text = "🎙 Official VIP Room"
+        rTitle.textSize = 16f
+        rTitle.setTypeface(rTitle.typeface, Typeface.BOLD)
+        rTitle.setTextColor(Color.parseColor("#3A280E"))
+
+        val rSub = TextView(this)
+        rSub.text = "Room ID: $officialRoomId"
+        rSub.textSize = 13f
+        rSub.setTextColor(Color.parseColor("#8C6D3F"))
+
+        roomTextCol.addView(rTitle)
+        roomTextCol.addView(rSub)
+
+        val btnEnterRoom = Button(this)
+        btnEnterRoom.text = "Enter Room"
+        btnEnterRoom.setTextColor(Color.parseColor("#2B1B04"))
+        btnEnterRoom.background = box("#F5D061", "#B8860B", 2, 30f)
+        btnEnterRoom.setOnClickListener {
+            try {
+                val intent = Intent(this, Class.forName("com.gupshap.pro.LiveRoomActivity"))
+                intent.putExtra("ROOM_ID", officialRoomId)
+                startActivity(intent)
+            } catch (_: Exception) {
             }
         }
 
-        val roomInfo = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        roomInfo.addView(TextView(this).apply {
-            text = "🎙 Official VIP Room"
-            textSize = 16f
-            setTypeface(typeface, Typeface.BOLD)
-            setTextColor(Color.parseColor("#3A280E"))
-        })
-        roomInfo.addView(TextView(this).apply {
-            text = "Room ID: $officialRoomId"
-            textSize = 13f
-            setTextColor(Color.parseColor("#8C6D3F"))
-        })
-
-        val btnEnterRoom = Button(this).apply {
-            text = "Enter Room"
-            setTextColor(Color.parseColor("#2B1B04"))
-            background = box("#F5D061", "#B8860B", 2, 30f)
-            setOnClickListener {
-                try {
-                    val intent = Intent(this@MainActivity, Class.forName("com.gupshap.pro.LiveRoomActivity"))
-                    intent.putExtra("ROOM_ID", officialRoomId)
-                    startActivity(intent)
-                } catch (_: Exception) {
-                }
-            }
-        }
-
-        roomCard.addView(roomInfo)
+        roomCard.addView(roomTextCol)
         roomCard.addView(btnEnterRoom)
         mainCol.addView(roomCard)
 
-        val gameCard = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(20, 18, 20, 18)
-            background = box("#FFFDF9", "#9B1B30", 3, 22f)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 20
+        // Girdy 30s Card
+        val gameCard = LinearLayout(this)
+        gameCard.orientation = LinearLayout.HORIZONTAL
+        gameCard.gravity = Gravity.CENTER_VERTICAL
+        gameCard.setPadding(20, 18, 20, 18)
+        gameCard.background = box("#FFFDF9", "#9B1B30", 3, 22f)
+        val gameLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        gameLp.bottomMargin = 20
+        gameCard.layoutParams = gameLp
+
+        val gameTextCol = LinearLayout(this)
+        gameTextCol.orientation = LinearLayout.VERTICAL
+        gameTextCol.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+
+        val gTitle = TextView(this)
+        gTitle.text = "🎰 Girdy 30s Royal Arena"
+        gTitle.textSize = 16f
+        gTitle.setTypeface(gTitle.typeface, Typeface.BOLD)
+        gTitle.setTextColor(Color.parseColor("#5C101D"))
+
+        val gSub = TextView(this)
+        gSub.text = "30-Sec Fast Gold Coins Round"
+        gSub.textSize = 13f
+        gSub.setTextColor(Color.parseColor("#8C6D3F"))
+
+        gameTextCol.addView(gTitle)
+        gameTextCol.addView(gSub)
+
+        val btnPlayGame = Button(this)
+        btnPlayGame.text = "Play 30s"
+        btnPlayGame.setTextColor(Color.WHITE)
+        btnPlayGame.background = box("#9B1B30", "#D4AF37", 2, 30f)
+        btnPlayGame.setOnClickListener {
+            try {
+                val intent = Intent(this, Class.forName("com.gupshap.pro.GreedyGameActivity"))
+                startActivity(intent)
+            } catch (_: Exception) {
             }
         }
 
-        val gameInfo = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        gameInfo.addView(TextView(this).apply {
-            text = "🎰 Girdy 30s Royal Arena"
-            textSize = 16f
-            setTypeface(typeface, Typeface.BOLD)
-            setTextColor(Color.parseColor("#5C101D"))
-        })
-        gameInfo.addView(TextView(this).apply {
-            text = "30-Sec Fast Gold Coins Round"
-            textSize = 13f
-            setTextColor(Color.parseColor("#8C6D3F"))
-        })
-
-        val btnPlayGame = Button(this).apply {
-            text = "Play 30s"
-            setTextColor(Color.WHITE)
-            background = box("#9B1B30", "#D4AF37", 2, 30f)
-            setOnClickListener {
-                try {
-                    val intent = Intent(this@MainActivity, Class.forName("com.gupshap.pro.GreedyGameActivity"))
-                    startActivity(intent)
-                } catch (_: Exception) {
-                }
-            }
-        }
-
-        gameCard.addView(gameInfo)
+        gameCard.addView(gameTextCol)
         gameCard.addView(btnPlayGame)
         mainCol.addView(gameCard)
 
-        val featuredGrid = GridLayout(this).apply {
-            columnCount = 2
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 16
-            }
-        }
+        // Featured Grid
+        val grid = GridLayout(this)
+        grid.columnCount = 2
+        val gridLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        gridLp.bottomMargin = 16
+        grid.layoutParams = gridLp
 
-        val roomsList = listOf(
-            Triple("✨ Royal Darbar", "Lv.18", "#FFFDF8"),
-            Triple("👑 Maharaja Lounge", "Lv.15", "#FFFDF8"),
-            Triple("💖 Ruby Heart Room", "Lv.12", "#FFF8F7"),
-            Triple("✦ Golden Palace", "New", "#FFFDF8")
+        val rooms = listOf(
+            Pair("✨ Royal Darbar", "Lv.18"),
+            Pair("👑 Maharaja Lounge", "Lv.15"),
+            Pair("💖 Ruby Heart Room", "Lv.12"),
+            Pair("✦ Golden Palace", "New")
         )
 
-        roomsList.forEachIndexed { idx, (rTitle, badge, rBg) ->
-            val card = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER
-                setPadding(14, 16, 14, 16)
-                background = box(rBg, "#D4AF37", 3, 20f)
-                layoutParams = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = GridLayout.LayoutParams.WRAP_CONTENT
-                    columnSpec = GridLayout.spec(idx % 2, 1f)
-                    setMargins(
-                        if (idx % 2 == 0) 0 else 8,
-                        0,
-                        if (idx % 2 == 0) 8 else 0,
-                        14
-                    )
-                }
-            }
-            card.addView(TextView(this).apply {
-                text = "❖ $badge ❖"
-                textSize = 11f
-                setTypeface(typeface, Typeface.BOLD)
-                setTextColor(Color.parseColor("#9B1B30"))
-                setPadding(12, 4, 12, 4)
-                background = box("#FFF3D1", "#C59B27", 2, 30f)
-            })
-            card.addView(TextView(this).apply {
-                text = "♛"
-                textSize = 32f
-                setTextColor(Color.parseColor("#B8860B"))
-                setPadding(0, 10, 0, 8)
-            })
-            card.addView(TextView(this).apply {
-                text = rTitle
-                textSize = 14f
-                setTypeface(typeface, Typeface.BOLD)
-                setTextColor(Color.parseColor("#3A280E"))
-                gravity = Gravity.CENTER
-            })
-            featuredGrid.addView(card)
-        }
-        mainCol.addView(featuredGrid)
+        rooms.forEachIndexed { i, room ->
+            val itemCard = LinearLayout(this)
+            itemCard.orientation = LinearLayout.VERTICAL
+            itemCard.gravity = Gravity.CENTER
+            itemCard.setPadding(14, 16, 14, 16)
+            itemCard.background = box("#FFFDF8", "#D4AF37", 3, 20f)
 
-        tvGlobalPati = TextView(this).apply {
-            text = "👑 Royal Mega Win Feed • Live on GupShup Pro"
-            textSize = 13f
-            setTypeface(typeface, Typeface.BOLD)
-            setTextColor(Color.parseColor("#4A3515"))
-            setPadding(18, 12, 18, 12)
-            background = box("#FFF6DC", "#C59B27", 3, 30f)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
+            val glp = GridLayout.LayoutParams()
+            glp.width = 0
+            glp.height = GridLayout.LayoutParams.WRAP_CONTENT
+            glp.columnSpec = GridLayout.spec(i % 2, 1f)
+            glp.setMargins(if (i % 2 == 0) 0 else 8, 0, if (i % 2 == 0) 8 else 0, 14)
+            itemCard.layoutParams = glp
+
+            val badge = TextView(this)
+            badge.text = "❖ ${room.second} ❖"
+            badge.textSize = 11f
+            badge.setTypeface(badge.typeface, Typeface.BOLD)
+            badge.setTextColor(Color.parseColor("#9B1B30"))
+            badge.setPadding(12, 4, 12, 4)
+            badge.background = box("#FFF3D1", "#C59B27", 2, 30f)
+
+            val crown = TextView(this)
+            crown.text = "♛"
+            crown.textSize = 32f
+            crown.setTextColor(Color.parseColor("#B8860B"))
+            crown.setPadding(0, 10, 0, 8)
+
+            val name = TextView(this)
+            name.text = room.first
+            name.textSize = 14f
+            name.setTypeface(name.typeface, Typeface.BOLD)
+            name.setTextColor(Color.parseColor("#3A280E"))
+            name.gravity = Gravity.CENTER
+
+            itemCard.addView(badge)
+            itemCard.addView(crown)
+            itemCard.addView(name)
+            grid.addView(itemCard)
         }
+        mainCol.addView(grid)
+
+        // Global Win Ticker
+        tvGlobalPati = TextView(this)
+        tvGlobalPati.text = "👑 Royal Mega Win Feed • Live on GupShup Pro"
+        tvGlobalPati.textSize = 13f
+        tvGlobalPati.setTypeface(tvGlobalPati.typeface, Typeface.BOLD)
+        tvGlobalPati.setTextColor(Color.parseColor("#4A3515"))
+        tvGlobalPati.setPadding(18, 12, 18, 12)
+        tvGlobalPati.background = box("#FFF6DC", "#C59B27", 3, 30f)
         mainCol.addView(tvGlobalPati)
 
         scrollView.addView(mainCol)
         root.addView(scrollView)
 
-        val bottomBar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            setPadding(10, 14, 10, 14)
-            background = box("#FFFDF9", "#D4AF37", 2, 0f)
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.BOTTOM
-            )
-        }
+        // Bottom Bar
+        val bottomBar = LinearLayout(this)
+        bottomBar.orientation = LinearLayout.HORIZONTAL
+        bottomBar.gravity = Gravity.CENTER
+        bottomBar.setPadding(10, 14, 10, 14)
+        bottomBar.background = box("#FFFDF9", "#D4AF37", 2, 0f)
+        bottomBar.layoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            Gravity.BOTTOM
+        )
 
-        val navItems = listOf("🏠 Home", "🧩 Rooms", "💬 Chat", "👤 Me")
-        navItems.forEachIndexed { idx, title ->
-            bottomBar.addView(TextView(this).apply {
-                text = title
-                textSize = 13f
-                gravity = Gravity.CENTER
-                setTypeface(typeface, if (idx == 0) Typeface.BOLD else Typeface.NORMAL)
-                setTextColor(if (idx == 0) Color.parseColor("#0F6B4A") else Color.parseColor("#5C4D3C"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                setOnClickListener {
-                    if (idx == 3) toggleMyPageDrawer(true)
-                }
-            })
+        val tabs = listOf("🏠 Home", "🧩 Rooms", "💬 Chat", "👤 Me")
+        tabs.forEachIndexed { idx, title ->
+            val tab = TextView(this)
+            tab.text = title
+            tab.textSize = 13f
+            tab.gravity = Gravity.CENTER
+            tab.setTypeface(tab.typeface, if (idx == 0) Typeface.BOLD else Typeface.NORMAL)
+            tab.setTextColor(if (idx == 0) Color.parseColor("#0F6B4A") else Color.parseColor("#5C4D3C"))
+            tab.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            tab.setOnClickListener {
+                if (idx == 3) toggleMyPageDrawer(true)
+            }
+            bottomBar.addView(tab)
         }
         root.addView(bottomBar)
 
-        drawerBackdrop = View(this).apply {
-            setBackgroundColor(Color.parseColor("#80000000"))
-            visibility = View.GONE
-            setOnClickListener { toggleMyPageDrawer(false) }
-        }
+        // Drawer Backdrop & My Page Drawer
+        drawerBackdrop = View(this)
+        drawerBackdrop.setBackgroundColor(Color.parseColor("#80000000"))
+        drawerBackdrop.visibility = View.GONE
+        drawerBackdrop.setOnClickListener { toggleMyPageDrawer(false) }
         root.addView(drawerBackdrop)
 
         myPageDrawer = buildMyPageDrawer()
@@ -434,106 +422,83 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildMyPageDrawer(): LinearLayout {
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(24, 36, 24, 28)
-            visibility = View.GONE
-            background = box("#FAF3E3", "#C59B27", 4, 26f)
-            layoutParams = FrameLayout.LayoutParams(
-                (resources.displayMetrics.widthPixels * 0.82).toInt(),
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                Gravity.END
-            )
+        val drawer = LinearLayout(this)
+        drawer.orientation = LinearLayout.VERTICAL
+        drawer.setPadding(24, 36, 24, 28)
+        drawer.visibility = View.GONE
+        drawer.background = box("#FAF3E3", "#C59B27", 4, 26f)
+        drawer.layoutParams = FrameLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels * 0.82).toInt(),
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            Gravity.END
+        )
 
-            addView(TextView(this@MainActivity).apply {
-                text = "👑"
-                textSize = 42f
-                gravity = Gravity.CENTER
-                setPadding(24, 16, 24, 16)
-                background = box("#FFF8E3", "#D4AF37", 3, 80f)
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    gravity = Gravity.CENTER_HORIZONTAL
-                    bottomMargin = 16
-                }
-            })
+        val avatar = TextView(this)
+        avatar.text = "👑"
+        avatar.textSize = 42f
+        avatar.gravity = Gravity.CENTER
+        avatar.setPadding(24, 16, 24, 16)
+        avatar.background = box("#FFF8E3", "#D4AF37", 3, 80f)
+        val avatarLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        avatarLp.gravity = Gravity.CENTER_HORIZONTAL
+        avatarLp.bottomMargin = 16
+        avatar.layoutParams = avatarLp
+        drawer.addView(avatar)
 
-            addView(TextView(this@MainActivity).apply {
-                text = "Name: $userName"
-                textSize = 16f
-                setTypeface(typeface, Typeface.BOLD)
-                setTextColor(Color.parseColor("#2E1F0A"))
-                setPadding(0, 3, 0, 3)
-            })
+        val infoLines = listOf(
+            "Name: $userName",
+            "ID: $userId",
+            "VIP Level: 👑 VIP $vipLevel",
+            "Coins: 💰 $userCoins",
+            "Gems: 💎 $userGems"
+        )
 
-            addView(TextView(this@MainActivity).apply {
-                text = "ID: $userId"
-                textSize = 14f
-                setTextColor(Color.parseColor("#5C492E"))
-                setPadding(0, 2, 0, 2)
-            })
-
-            addView(TextView(this@MainActivity).apply {
-                text = "VIP Level: 👑 VIP $vipLevel"
-                textSize = 14f
-                setTextColor(Color.parseColor("#9B1B30"))
-                setPadding(0, 2, 0, 2)
-            })
-
-            addView(TextView(this@MainActivity).apply {
-                text = "Coins: 💰 $userCoins"
-                textSize = 14f
-                setTextColor(Color.parseColor("#8A6207"))
-                setPadding(0, 2, 0, 2)
-            })
-
-            addView(TextView(this@MainActivity).apply {
-                text = "Gems: 💎 $userGems"
-                textSize = 14f
-                setTextColor(Color.parseColor("#1D4ED8"))
-                setPadding(0, 2, 0, 10)
-            })
-
-            addView(TextView(this@MainActivity).apply {
-                text = "\"Welcome to my royal corner of GupShup!\""
-                textSize = 13f
-                typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
-                setTextColor(Color.parseColor("#5A462B"))
-                setPadding(14, 12, 14, 12)
-                background = box("#FFFDF8", "#D4AF37", 2, 16f)
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    bottomMargin = 18
-                }
-            })
-
-            val drawerButtons = listOf(
-                "🪞 Edit Profile",
-                "👛 My Wallet",
-                "⚙️ Settings",
-                "🤝 Friends"
-            )
-
-            drawerButtons.forEach { label ->
-                addView(Button(this@MainActivity).apply {
-                    text = label
-                    gravity = Gravity.START or Gravity.CENTER_VERTICAL
-                    setTextColor(Color.parseColor("#3A280E"))
-                    background = box("#FFF9EA", "#C59B27", 2, 16f)
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        bottomMargin = 10
-                    }
-                    setOnClickListener { toggleMyPageDrawer(false) }
-                })
-            }
+        infoLines.forEach { line ->
+            val tv = TextView(this)
+            tv.text = line
+            tv.textSize = 14f
+            tv.setTextColor(Color.parseColor("#2E1F0A"))
+            tv.setPadding(0, 4, 0, 4)
+            drawer.addView(tv)
         }
+
+        val bio = TextView(this)
+        bio.text = "\"Welcome to my royal corner of GupShup!\""
+        bio.textSize = 13f
+        bio.typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+        bio.setTextColor(Color.parseColor("#5A462B"))
+        bio.setPadding(14, 12, 14, 12)
+        bio.background = box("#FFFDF8", "#D4AF37", 2, 16f)
+        val bioLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        bioLp.topMargin = 10
+        bioLp.bottomMargin = 18
+        bio.layoutParams = bioLp
+        drawer.addView(bio)
+
+        val actions = listOf("🪞 Edit Profile", "👛 My Wallet", "⚙️ Settings", "🤝 Friends")
+        actions.forEach { label ->
+            val btn = Button(this)
+            btn.text = label
+            btn.gravity = Gravity.START or Gravity.CENTER_VERTICAL
+            btn.setTextColor(Color.parseColor("#3A280E"))
+            btn.background = box("#FFF9EA", "#C59B27", 2, 16f)
+            val btnLp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            btnLp.bottomMargin = 10
+            btn.layoutParams = btnLp
+            btn.setOnClickListener { toggleMyPageDrawer(false) }
+            drawer.addView(btn)
+        }
+
+        return drawer
     }
 
     private fun toggleMyPageDrawer(open: Boolean) {
@@ -542,4 +507,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun listenGlobalWins() {
-        dbRef.child("global_wins").limitToLast(1).addChildEventListener(object : ChildEventListener 
+        dbRef.child("global_wins").limitToLast(1).addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val msg = snapshot.child("message").getValue(String::class.java)
+                    ?: snapshot.getValue(String::class.java)
+                if (!msg.isNullOrBlank()) {
+                    tvGlobalPati.text = "👑 $msg"
+                    patiAnimator?.cancel()
+                    patiAnimator = ObjectAnimator.ofFloat(tvGlobalPati, "alpha", 0.3f, 1f).apply {
+                        duration = 600
+                        start()
+                    }
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    private fun box(bg: String, stroke: String, widthPx: Int, radiusPx: Float): GradientDrawable {
+        return GradientDrawable().apply {
+            setColor(Color.parseColor(bg))
+            if (widthPx > 0) setStroke(widthPx, Color.parseColor(stroke))
+            cornerRadius = radiusPx
+        }
+    }
+}
