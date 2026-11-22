@@ -284,7 +284,7 @@ class LiveRoomActivity : AppCompatActivity() {
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
                 override fun onChildRemoved(snapshot: DataSnapshot) {}
                 override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-                override fun onChildCancelled(error: DatabaseError) {}
+                override fun onCancelled(error: DatabaseError) {}
             })
     }
 
@@ -303,7 +303,7 @@ class LiveRoomActivity : AppCompatActivity() {
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onChildRemoved(snapshot: DataSnapshot) {}
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-            override fun onChildCancelled(error: DatabaseError) {}
+            override fun onCancelled(error: DatabaseError) {}
         })
     }
 
